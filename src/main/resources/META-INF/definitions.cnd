@@ -13,6 +13,7 @@
  * - Child node definitions allow any content and folders
  */
 [jnt:archiveContentFolder] > jmix:droppableContent, jmix:nolive, jmix:visibleInContentTree
+ + * (nt:base)
 
 /**
  * Archived Content Mixin

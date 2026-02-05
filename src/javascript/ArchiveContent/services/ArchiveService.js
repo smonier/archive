@@ -174,30 +174,59 @@ class ArchiveService {
         const year = date.getFullYear().toString();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
 
+        console.log('[ArchiveService] Ensuring date folders exist for:', {archiveFolderPath, year, month});
+
         // Check/create year folder
         const yearPath = `${archiveFolderPath}/${year}`;
-        const yearExists = await this.checkPathExists(yearPath);
+        let yearExists = await this.checkPathExists(yearPath);
+        console.log('[ArchiveService] Year folder exists?', yearExists, 'Path:', yearPath);
 
         if (!yearExists) {
-            debugLog('Creating year folder:', yearPath);
-            await executeGraphQL(CREATE_FOLDER, {
-                parentPath: archiveFolderPath,
-                name: year
-            });
+            console.log('[ArchiveService] Creating year folder:', yearPath);
+            try {
+                const result = await executeGraphQL(CREATE_FOLDER, {
+                    parentPath: archiveFolderPath,
+                    name: year
+                });
+                console.log('[ArchiveService] Year folder created:', result);
+
+                // Verify it was created
+                yearExists = await this.checkPathExists(yearPath);
+                if (!yearExists) {
+                    throw new Error(`Failed to create year folder: ${yearPath}`);
+                }
+            } catch (error) {
+                console.error('[ArchiveService] Error creating year folder:', error);
+                throw error;
+            }
         }
 
         // Check/create month folder
         const monthPath = `${yearPath}/${month}`;
-        const monthExists = await this.checkPathExists(monthPath);
+        let monthExists = await this.checkPathExists(monthPath);
+        console.log('[ArchiveService] Month folder exists?', monthExists, 'Path:', monthPath);
 
         if (!monthExists) {
-            debugLog('Creating month folder:', monthPath);
-            await executeGraphQL(CREATE_FOLDER, {
-                parentPath: yearPath,
-                name: month
-            });
+            console.log('[ArchiveService] Creating month folder:', monthPath);
+            try {
+                const result = await executeGraphQL(CREATE_FOLDER, {
+                    parentPath: yearPath,
+                    name: month
+                });
+                console.log('[ArchiveService] Month folder created:', result);
+
+                // Verify it was created
+                monthExists = await this.checkPathExists(monthPath);
+                if (!monthExists) {
+                    throw new Error(`Failed to create month folder: ${monthPath}`);
+                }
+            } catch (error) {
+                console.error('[ArchiveService] Error creating month folder:', error);
+                throw error;
+            }
         }
 
+        console.log('[ArchiveService] Date folders ready, final path:', monthPath);
         return monthPath;
     }
 
@@ -308,14 +337,23 @@ class ArchiveService {
 
             // Step 5: Ensure archive folder exists
             const archiveFolderPath = getArchiveFolderPath(siteKey);
-            const archiveFolderExists = await this.checkArchiveFolderExists(archiveFolderPath);
+            let archiveFolderExists = await this.checkArchiveFolderExists(archiveFolderPath);
 
             if (!archiveFolderExists) {
-                debugLog('Archive folder does not exist, creating...');
+                console.log('[ArchiveService] Archive folder does not exist, creating:', archiveFolderPath);
                 await this.createArchiveFolder(siteKey);
+
+                // Verify it was created
+                archiveFolderExists = await this.checkArchiveFolderExists(archiveFolderPath);
+                if (!archiveFolderExists) {
+                    throw new Error('Failed to create archive folder');
+                }
+
+                console.log('[ArchiveService] Archive folder created successfully');
             }
 
             // Step 6: Ensure date folders exist
+            console.log('[ArchiveService] Creating date folders in:', archiveFolderPath);
             const destinationPath = await this.ensureDateFoldersExist(archiveFolderPath);
 
             // Step 7: Get current user
