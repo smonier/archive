@@ -1,0 +1,12 @@
+<permissions xmlns:jcr="http://www.jcp.org/jcr/1.0">
+    <actions jcr:primaryType="jnt:permission">
+        <!-- Archive content permission: allows archiving of unpublished content -->
+        <archiveContent jcr:primaryType="jnt:permission" />
+        
+        <!-- Unarchive content permission: allows restoration of archived content -->
+        <unarchiveContent jcr:primaryType="jnt:permission" />
+        
+        <!-- Manage archive permission: allows managing archive folder and settings -->
+        <manageArchive jcr:primaryType="jnt:permission" />
+    </actions>
+</permissions>

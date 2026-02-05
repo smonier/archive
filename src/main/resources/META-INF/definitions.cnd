@@ -1,0 +1,38 @@
+<mix = 'http://www.jcp.org/jcr/mix/1.0'>
+<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
+<jmix = 'http://www.jahia.org/jahia/mix/1.0'>
+
+/**
+ * Archive Content Folder Node Type
+ * 
+ * Primary node type for the archive root folder under /<siteKey>/contents/archive
+ * Features:
+ * - jmix:droppableContent: allows content to be dropped/moved into it
+ * - jmix:nolive: not published to live workspace
+ * - jmix:visibleInContentTree: visible in content tree navigation
+ * - Child node definitions allow any content and folders
+ */
+[jnt:archiveContentFolder] > jmix:droppableContent, jmix:nolive, jmix:visibleInContentTree
+
+/**
+ * Archived Content Mixin
+ * 
+ * Applied to content that has been archived.
+ * Stores metadata about the archive operation and original location.
+ * 
+ * Properties:
+ * - archived (boolean): Flag indicating the node is archived (required, default: true)
+ * - archivedAt (date): Timestamp when content was archived (required, autocreated)
+ * - archivedBy (weakreference): Reference to user who archived the content (required)
+ * - originalPath (string): Full JCR path before archiving (required)
+ * - originalParentId (string): UUID of the parent node before move (required)
+ * 
+ * Note: This mixin makes content effectively read-only for standard editors.
+ * Administrators can still modify archived content if needed.
+ */
+[jmix:archived] mixin
+ - archived (boolean) = true mandatory 
+ - archivedAt (date) mandatory 
+ - archivedBy (weakreference) mandatory < 'jnt:user'
+ - originalPath (string) mandatory
+ - originalParentId (string) mandatory

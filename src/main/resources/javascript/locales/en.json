@@ -1,0 +1,27 @@
+{
+  "archive": {
+    "label": "Archive",
+    "label.archiveContent": "Archive Content",
+    "dialog.title.archive": "Archive Content",
+    "dialog.title.published": "Cannot Archive Published Content",
+    "dialog.title.alreadyArchived": "Already Archived",
+    "dialog.message.confirm": "Are you sure you want to archive this content?",
+    "dialog.message.published": "This content is currently published and cannot be archived. Please unpublish this content manually before archiving.",
+    "dialog.message.alreadyArchived": "This content has already been archived.",
+    "dialog.message.details": "The content will be moved to the archive folder and marked as read-only. Original location information will be preserved.",
+    "dialog.label.content": "Content:",
+    "dialog.label.currentPath": "Current path:",
+    "dialog.label.archiveDestination": "Archive destination:",
+    "button.cancel": "Cancel",
+    "button.archive": "Archive",
+    "button.close": "Close",
+    "notification.success": "Content archived successfully",
+    "notification.error": "Failed to archive content",
+    "notification.permission": "You do not have permission to archive this content",
+    "notification.notFound": "Content not found",
+    "notification.locked": "Content is locked and cannot be archived"
+  },
+  "unArchive": {
+    "label": "Unarchive Content"
+  }
+}
