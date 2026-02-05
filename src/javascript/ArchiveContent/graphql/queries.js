@@ -28,12 +28,12 @@ export const FRAGMENTS = `
 `;
 
 /**
- * Query to fetch node information including publication status
+ * Query to fetch node information including publication status for all languages
  */
 export const GET_NODE_INFO = `
   ${FRAGMENTS}
   
-  query GetNodeInfo($path: String!, $language: String!) {
+  query GetNodeInfo($path: String!) {
     jcr {
       nodeByPath(path: $path) {
         ...CoreNodeFields
@@ -41,18 +41,49 @@ export const GET_NODE_INFO = `
         parent {
           ...SimpleCoreNodeFields
         }
+        site {
+          languages: property(name: "j:languages") {
+            values
+          }
+        }
         properties {
           name
           value
         }
-        aggregatedPublicationInfo(language: $language) {
-          publicationStatus
-        }
-        isPublished: property(name: "j:published", language: $language) {
-          value
-        }
         archivedProp: property(name: "archived") {
           value
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * Query to get site languages
+ */
+export const GET_SITE_LANGUAGES = `
+  query GetSiteLanguages($path: String!) {
+    jcr {
+      nodeByPath(path: $path) {
+        site {
+          languages: property(name: "j:languages") {
+            values
+          }
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * Query to check publication status for a specific language
+ */
+export const GET_PUBLICATION_STATUS = `
+  query GetPublicationStatus($path: String!, $language: String!) {
+    jcr {
+      nodeByPath(path: $path) {
+        aggregatedPublicationInfo(language: $language) {
+          publicationStatus
         }
       }
     }

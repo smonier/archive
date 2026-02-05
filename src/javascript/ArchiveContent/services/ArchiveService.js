@@ -6,7 +6,9 @@ import {
     CHECK_ARCHIVE_FOLDER,
     GET_CURRENT_USER,
     CHECK_PATH_EXISTS,
-    GET_SITE_INFO
+    GET_SITE_INFO,
+    GET_SITE_LANGUAGES,
+    GET_PUBLICATION_STATUS
 } from '../graphql/queries';
 
 import {
@@ -54,9 +56,53 @@ class ArchiveService {
      */
     async getNodeInfo(path) {
         debugLog('Fetching node info for:', path);
-        const language = this.getCurrentLanguage();
-        const data = await executeGraphQL(GET_NODE_INFO, {path, language});
+        const data = await executeGraphQL(GET_NODE_INFO, {path});
         return data.jcr?.nodeByPath;
+    }
+
+    /**
+     * Get site languages
+     */
+    async getSiteLanguages(path) {
+        try {
+            debugLog('Fetching site languages for:', path);
+            const data = await executeGraphQL(GET_SITE_LANGUAGES, {path});
+            const languages = data.jcr?.nodeByPath?.site?.languages?.values;
+            debugLog('Site languages:', languages);
+            return languages || ['en'];
+        } catch (error) {
+            console.error('[ArchiveService] Error fetching site languages:', error);
+            return ['en'];
+        }
+    }
+
+    /**
+     * Check publication status for all site languages
+     */
+    async getPublicationStatusForAllLanguages(path, languages) {
+        debugLog('Checking publication status for path:', path, 'languages:', languages);
+
+        const statusChecks = await Promise.all(
+            languages.map(async lang => {
+                try {
+                    debugLog(`Checking publication status for language: ${lang}`);
+                    const data = await executeGraphQL(GET_PUBLICATION_STATUS, {path, language: lang});
+                    const status = data.jcr?.nodeByPath?.aggregatedPublicationInfo?.publicationStatus;
+                    const isPublished = status === 'PUBLISHED' || status === 'MODIFIED';
+                    debugLog(`Language ${lang}: status=${status}, isPublished=${isPublished}`);
+                    return {
+                        language: lang,
+                        status,
+                        isPublished
+                    };
+                } catch (error) {
+                    console.error(`[ArchiveService] Error checking ${lang}:`, error);
+                    return {language: lang, status: 'UNKNOWN', isPublished: false};
+                }
+            })
+        );
+
+        return statusChecks;
     }
 
     /**
@@ -339,13 +385,28 @@ class ArchiveService {
                 };
             }
 
-            if (isNodePublished(nodeInfo)) {
-                return {
+            // Check publication status in all site languages
+            const siteLanguages = await this.getSiteLanguages(nodePath);
+            console.log('[ArchiveService] Site languages:', siteLanguages);
+
+            const publishedLanguages = await this.getPublicationStatusForAllLanguages(nodePath, siteLanguages);
+            console.log('[ArchiveService] All publication status:', publishedLanguages);
+
+            const hasPublishedContent = publishedLanguages.some(l => l.isPublished);
+            console.log('[ArchiveService] Has published content:', hasPublishedContent);
+
+            if (hasPublishedContent) {
+                const publishedLangList = publishedLanguages.filter(l => l.isPublished);
+                console.log('[ArchiveService] Published languages list:', publishedLangList);
+                const result = {
                     canArchive: false,
                     reason: 'published',
                     message: 'Content is published and must be unpublished first',
-                    nodeInfo
+                    nodeInfo,
+                    publishedLanguages: publishedLangList
                 };
+                console.log('[ArchiveService] Returning validation result:', result);
+                return result;
             }
 
             // Get preview of destination

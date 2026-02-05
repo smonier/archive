@@ -77,33 +77,44 @@ ArchiveConfirmDialog.propTypes = {
 /**
  * Warning Dialog for Published Content
  */
-const PublishedWarningDialog = ({open, onClose, nodeInfo}) => (
-    <Dialog fullWidth open={open} maxWidth="sm" onClose={onClose}>
-        <DialogTitle>Cannot Archive Published Content</DialogTitle>
-        <DialogContent>
-            <DialogContentText>
-                This content is currently published and cannot be archived.
-            </DialogContentText>
-            <Typography variant="body2" sx={{mt: 2}}>
-                <strong>Content:</strong> {nodeInfo?.displayName || nodeInfo?.name}
-            </Typography>
-            <Typography variant="body2">
-                <strong>Path:</strong> {nodeInfo?.path}
-            </Typography>
-            <Typography variant="body2" color="error" sx={{mt: 2}}>
-                Please unpublish this content manually before archiving.
-            </Typography>
-        </DialogContent>
-        <DialogActions>
-            <Button onClick={onClose}>Close</Button>
-        </DialogActions>
-    </Dialog>
-);
+const PublishedWarningDialog = ({open, onClose, nodeInfo, publishedLanguages}) => {
+    console.log('[PublishedWarningDialog] publishedLanguages:', publishedLanguages);
+    console.log('[PublishedWarningDialog] nodeInfo:', nodeInfo);
+
+    return (
+        <Dialog fullWidth open={open} maxWidth="sm" onClose={onClose}>
+            <DialogTitle>Cannot Archive Published Content</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    This content is currently published and cannot be archived.
+                </DialogContentText>
+                <Typography variant="body2" sx={{mt: 2}}>
+                    <strong>Content:</strong> {nodeInfo?.displayName || nodeInfo?.name}
+                </Typography>
+                <Typography variant="body2">
+                    <strong>Path:</strong> {nodeInfo?.path}
+                </Typography>
+                {publishedLanguages && publishedLanguages.length > 0 && (
+                <Typography variant="body2" sx={{mt: 2}}>
+                    <strong>Published in languages:</strong> {publishedLanguages.map(l => l.language.toUpperCase()).join(', ')}
+                </Typography>
+            )}
+                <Typography variant="body2" color="error" sx={{mt: 2}}>
+                    Please unpublish this content in all languages before archiving.
+                </Typography>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>Close</Button>
+            </DialogActions>
+        </Dialog>
+    );
+};
 
 PublishedWarningDialog.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    nodeInfo: PropTypes.object
+    nodeInfo: PropTypes.object,
+    publishedLanguages: PropTypes.array
 };
 
 /**
@@ -153,9 +164,12 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
 
         try {
             const validation = await ArchiveService.validateArchive(path);
+            console.log('[ArchiveContentAction] Validation result:', validation);
             setValidationData(validation);
 
             if (!validation.canArchive) {
+                console.log('[ArchiveContentAction] Cannot archive, reason:', validation.reason);
+                console.log('[ArchiveContentAction] Published languages:', validation.publishedLanguages);
                 if (validation.reason === 'published') {
                     setPublishedWarningOpen(true);
                 } else if (validation.reason === 'alreadyArchived') {
@@ -239,6 +253,7 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
                         <PublishedWarningDialog
                             open={publishedWarningOpen}
                             nodeInfo={validationData.nodeInfo}
+                            publishedLanguages={validationData.publishedLanguages}
                             onClose={handleCloseDialogs}
                         />
                         <AlreadyArchivedDialog
