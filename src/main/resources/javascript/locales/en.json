@@ -3,6 +3,14 @@
     "label": "Archive",
     "label.archiveContent": "Archive Content",
     "label.restoreArchive": "Restore Archive",
+    "label.archiveManager.name": "Archive Manager",
+    "label.archiveManager.browseMode": "Archived Content",
+    "label.archiveManager.table.name": "Name",
+    "label.archiveManager.table.displayName": "Title",
+    "label.archiveManager.table.type": "Type",
+    "label.archiveManager.table.originalPath": "Original Location",
+    "label.archiveManager.table.archivedAt": "Archived Date",
+    "label.archiveManager.table.archivedBy": "Archived By",
     "dialog.title.archive": "Archive Content",
     "dialog.title.published": "Cannot Archive Published Content",
     "dialog.title.alreadyArchived": "Already Archived",
@@ -24,5 +32,11 @@
   },
   "unArchive": {
     "label": "Unarchive Content"
-  }
+  },
+  "jmix_archived": "Archived Content",
+  "jmix_archived.archived": "Archived",
+  "jmix_archived.archivedAt": "Archived At",
+  "jmix_archived.archivedBy": "Archived By",
+  "jmix_archived.originalPath": "Original Path",
+  "jmix_archived.originalParentId": "Original Parent ID"
 }

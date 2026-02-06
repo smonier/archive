@@ -1,4 +1,5 @@
 import {registerArchiveAction, registerRestoreArchiveAction} from './ArchiveContent';
+import registerArchiveManager from './ArchiveManager/registerArchiveManager';
 import i18next from 'i18next';
 
 export default async function () {
@@ -6,4 +7,5 @@ export default async function () {
 
     registerArchiveAction();
     registerRestoreArchiveAction();
+    registerArchiveManager();
 }

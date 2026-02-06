@@ -3,6 +3,14 @@
     "label": "Archiver",
     "label.archiveContent": "Archiver le contenu",
     "label.restoreArchive": "Restaurer l'archive",
+    "label.archiveManager.name": "Gestionnaire d'archives",
+    "label.archiveManager.browseMode": "Contenu archivé",
+    "label.archiveManager.table.name": "Nom",
+    "label.archiveManager.table.displayName": "Titre",
+    "label.archiveManager.table.type": "Type",
+    "label.archiveManager.table.originalPath": "Emplacement d'origine",
+    "label.archiveManager.table.archivedAt": "Date d'archivage",
+    "label.archiveManager.table.archivedBy": "Archivé par",
     "dialog.title.archive": "Archiver le contenu",
     "dialog.title.published": "Impossible d'archiver le contenu publié",
     "dialog.title.alreadyArchived": "Déjà archivé",
@@ -24,5 +32,11 @@
   },
   "unArchive": {
     "label": "Désarchiver le contenu"
-  }
+  },
+  "jmix_archived": "Contenu archivé",
+  "jmix_archived.archived": "Archivé",
+  "jmix_archived.archivedAt": "Archivé le",
+  "jmix_archived.archivedBy": "Archivé par",
+  "jmix_archived.originalPath": "Chemin d'origine",
+  "jmix_archived.originalParentId": "ID du parent d'origine"
 }

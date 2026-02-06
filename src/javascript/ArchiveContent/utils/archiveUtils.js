@@ -13,7 +13,7 @@ export const ARCHIVE_FOLDER_NAME = 'archive';
  * @returns {string} The archive folder path
  */
 export const getArchiveFolderPath = siteKey => {
-    return `/sites/${siteKey}/contents/${ARCHIVE_FOLDER_NAME}`;
+    return `/sites/${siteKey}/${ARCHIVE_FOLDER_NAME}`;
 };
 
 /**
