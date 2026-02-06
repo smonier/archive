@@ -34,7 +34,7 @@ export const GET_NODE_INFO = `
   ${FRAGMENTS}
   
   query GetNodeInfo($path: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       nodeByPath(path: $path) {
         ...CoreNodeFields
         displayName
@@ -63,7 +63,7 @@ export const GET_NODE_INFO = `
  */
 export const GET_SITE_LANGUAGES = `
   query GetSiteLanguages($path: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       nodeByPath(path: $path) {
         site {
           languages: property(name: "j:languages") {
@@ -80,7 +80,7 @@ export const GET_SITE_LANGUAGES = `
  */
 export const GET_PUBLICATION_STATUS = `
   query GetPublicationStatus($path: String!, $language: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       nodeByPath(path: $path) {
         aggregatedPublicationInfo(language: $language) {
           publicationStatus
@@ -97,7 +97,7 @@ export const CHECK_ARCHIVE_FOLDER = `
   ${FRAGMENTS}
   
   query CheckArchiveFolder($path: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       nodeByPath(path: $path) {
         ...CoreNodeFields
       }
@@ -127,7 +127,7 @@ export const CHECK_PATH_EXISTS = `
   ${FRAGMENTS}
   
   query CheckPathExists($path: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       nodeByPath(path: $path) {
         ...CoreNodeFields
       }
@@ -142,7 +142,7 @@ export const GET_SITE_INFO = `
   ${FRAGMENTS}
   
   query GetSiteInfo($path: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       nodeByPath(path: $path) {
         ...CoreNodeFields
         site {

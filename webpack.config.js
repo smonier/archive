@@ -58,8 +58,12 @@ module.exports = (env, argv) => {
             ]
         },
         plugins: [
-            new ModuleFederationPlugin(getModuleFederationConfig(packageJson)),
-            new CleanWebpackPlugin({verbose: false}),
+        new ModuleFederationPlugin(getModuleFederationConfig(packageJson, {
+                remotes: {
+                    //'@jahia/content-editor':'appShell.remotes.contentEditor'
+                    '@jahia/jcontent': 'appShell.remotes.jcontent'
+                }
+            })),            new CleanWebpackPlugin({verbose: false}),
             new CopyWebpackPlugin({patterns:[{from: './package.json', to: ''}]})
         ],
         mode: 'development'

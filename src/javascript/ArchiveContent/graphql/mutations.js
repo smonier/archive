@@ -95,11 +95,11 @@ export const SET_PROPERTIES = `
  * Mutation to move a node to a new location
  */
 export const MOVE_NODE = `
-  mutation MoveNode($pathOrId: String!, $destParentPath: String!, $destName: String) {
+  mutation MoveNode($pathOrId: String!, $destParentPathOrId: String!, $destName: String) {
     jcr(workspace: EDIT) {
       moveNode(
         pathOrId: $pathOrId
-        destParentPathOrId: $destParentPath
+        destParentPathOrId: $destParentPathOrId
         destName: $destName
       ) {
         node {
@@ -121,7 +121,7 @@ export const MOVE_NODE = `
  */
 export const SET_READ_ONLY_PERMISSIONS = `
   mutation SetReadOnlyPermissions($path: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       mutateNode(pathOrId: $path) {
         addMixins(mixins: ["jmix:accessControlled"])
       }
@@ -134,7 +134,7 @@ export const SET_READ_ONLY_PERMISSIONS = `
  */
 export const ADD_READ_ONLY_MIXIN = `
   mutation AddReadOnlyMixin($path: String!) {
-    jcr {
+    jcr(workspace: EDIT) {
       mutateNode(pathOrId: $path) {
         addMixins(mixins: ["jmix:markedForDeletion"])
       }

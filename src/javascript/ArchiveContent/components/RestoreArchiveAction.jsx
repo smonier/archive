@@ -1,0 +1,146 @@
+/**
+ * Restore Archive Action Component
+ * Jahia UI Extension for restoring archived content
+ */
+import React from 'react';
+import PropTypes from 'prop-types';
+import {registry} from '@jahia/ui-extender';
+import {Unarchive} from '@jahia/moonstone';
+import ArchiveService from '../services/ArchiveService';
+import {getErrorMessage} from '../utils/archiveUtils';
+import dialogManager from '../utils/DialogManager';
+import {useNodeChecks} from '@jahia/data-helper';
+
+/**
+ * Show notification to user
+ */
+const showNotification = (message, variant = 'info') => {
+    if (window.jahia && window.jahia.toastDispatcher) {
+        window.jahia.toastDispatcher.add({
+            message,
+            variant
+        });
+    } else {
+        console.log(`[Restore] ${message}`);
+    }
+};
+
+/**
+ * Main Restore Archive Action Component
+ */
+export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
+    const {checksResult} = useNodeChecks({path}, {
+        showOnNodeTypes: ['jmix:archived'],
+        requiredPermission: ['archiveContent']
+    });
+
+    /**
+     * Handle action click - validate and show restore dialog
+     */
+    const handleClick = async () => {
+        try {
+            const archiveInfo = await ArchiveService.getArchiveInfo(path);
+            console.log('[RestoreArchiveAction] Archive info:', archiveInfo);
+
+            if (!archiveInfo.isArchived) {
+                showNotification('This content is not archived', 'warning');
+                return;
+            }
+
+            // Check if original parent still exists
+            const parentExists = await ArchiveService.checkPathExists(archiveInfo.originalParentPath);
+            console.log('[RestoreArchiveAction] Parent exists:', parentExists);
+
+            // Show restore confirmation dialog
+            dialogManager.showRestoreConfirmDialog({
+                nodeInfo: archiveInfo.nodeInfo,
+                archiveInfo: archiveInfo,
+                parentExists: parentExists,
+                onConfirm: selectedParentPath => handleConfirm(archiveInfo, selectedParentPath),
+                onSelectParent: () => handleSelectParent(archiveInfo)
+            });
+        } catch (error) {
+            console.error('[RestoreArchive] Error:', error);
+            showNotification(getErrorMessage(error), 'error');
+        }
+    };
+
+    /**
+     * Handle confirmed restore action
+     */
+    const handleConfirm = async (archiveInfo, customParentPath = null) => {
+        try {
+            const targetParentPath = customParentPath || archiveInfo.originalParentPath;
+            const result = await ArchiveService.restoreNode(path, targetParentPath);
+
+            if (result.success) {
+                showNotification(`Content restored successfully to ${result.destinationPath}`, 'success');
+
+                // Trigger content refresh if possible
+                if (otherProps.refetch) {
+                    otherProps.refetch();
+                }
+
+                // Hide dialog
+                dialogManager.hideDialog();
+            } else {
+                showNotification(result.message || 'Restore operation failed', 'error');
+            }
+        } catch (error) {
+            console.error('[RestoreArchive] Restore error:', error);
+            showNotification(getErrorMessage(error), 'error');
+        }
+    };
+
+    /**
+     * Handle parent path selection
+     */
+    const handleSelectParent = archiveInfo => {
+        // Show path picker dialog
+        dialogManager.showPathPickerDialog({
+            nodeInfo: archiveInfo.nodeInfo,
+            onConfirm: selectedPath => {
+                // Show restore confirmation with new parent
+                dialogManager.showRestoreConfirmDialog({
+                    nodeInfo: archiveInfo.nodeInfo,
+                    archiveInfo: archiveInfo,
+                    parentExists: true,
+                    customParentPath: selectedPath,
+                    onConfirm: selectedParentPath => handleConfirm(archiveInfo, selectedParentPath)
+                });
+            }
+        });
+    };
+
+    // If render function provided, use it (for menu rendering)
+    if (checksResult) {
+        return <Render {...otherProps} onClick={handleClick}/>;
+    }
+
+    // This shouldn't happen with proper registration, but provide a fallback
+    return null;
+};
+
+RestoreArchiveAction.propTypes = {
+    path: PropTypes.string.isRequired,
+    render: PropTypes.func
+};
+
+/**
+ * Register the restore action in Jahia UI Extensions
+ */
+export const registerRestoreArchiveAction = () => {
+    registry.addOrReplace('action', 'restoreArchive', {
+        targets: ['contentActions:998'],
+        buttonIcon: <Unarchive/>,
+        buttonLabel: 'archive:archive.label.restoreArchive',
+        showOnNodeTypes: ['jmix:archived'],
+        requiredPermission: 'archiveContent',
+        isModal: true,
+        component: RestoreArchiveAction
+    });
+
+    console.info('[ArchiveContent] Restore archive action registered');
+};
+
+export default RestoreArchiveAction;

@@ -182,6 +182,33 @@ export const executeGraphQL = async (query, variables = {}) => {
 };
 
 /**
+ * Execute GraphQL query without logging errors (for cases where errors are expected)
+ * @param {string} query - GraphQL query string
+ * @param {Object} variables - Query variables
+ * @returns {Promise<Object>} Query result
+ */
+export const executeGraphQLSilent = async (query, variables = {}) => {
+    const response = await fetch('/modules/graphql', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            query,
+            variables
+        })
+    });
+
+    const result = await response.json();
+
+    if (result.errors) {
+        throw new Error(result.errors[0]?.message || 'GraphQL query failed');
+    }
+
+    return result.data;
+};
+
+/**
  * Log debug information (only in development)
  * @param {string} message - Debug message
  * @param {any} data - Optional data to log

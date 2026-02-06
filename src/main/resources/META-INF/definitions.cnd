@@ -31,9 +31,13 @@
  * Note: This mixin makes content effectively read-only for standard editors.
  * Administrators can still modify archived content if needed.
  */
+
 [jmix:archived] mixin
  - archived (boolean) = true mandatory 
  - archivedAt (date) mandatory 
  - archivedBy (weakreference) mandatory < 'jnt:user'
  - originalPath (string) mandatory
  - originalParentId (string) mandatory
+
+
+[jmix:archivable] mixin

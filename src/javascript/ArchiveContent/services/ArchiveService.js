@@ -2,6 +2,7 @@
  * Archive service - handles all archive operations
  */
 import {
+    FRAGMENTS,
     GET_NODE_INFO,
     CHECK_ARCHIVE_FOLDER,
     GET_CURRENT_USER,
@@ -27,6 +28,7 @@ import {
     generateUniqueName,
     formatJCRDate,
     executeGraphQL,
+    executeGraphQLSilent,
     debugLog
 } from '../utils/archiveUtils';
 
@@ -129,9 +131,16 @@ class ArchiveService {
     async checkPathExists(path) {
         try {
             debugLog('Checking if path exists:', path);
-            const data = await executeGraphQL(CHECK_PATH_EXISTS, {path});
+            const data = await executeGraphQLSilent(CHECK_PATH_EXISTS, {path});
             return Boolean(data.jcr?.nodeByPath);
-        } catch {
+        } catch (error) {
+            // PathNotFoundException is expected when checking for conflicts
+            if (error.message?.includes('PathNotFoundException')) {
+                return false;
+            }
+
+            // For other unexpected errors, log them
+            console.warn('[ArchiveService] Unexpected error checking path existence:', error);
             return false;
         }
     }
@@ -269,7 +278,7 @@ class ArchiveService {
             // Try with original name first
             const result = await executeGraphQL(MOVE_NODE, {
                 pathOrId: nodeUuid,
-                destParentPath,
+                destParentPathOrId: destParentPath,
                 destName: null // Keep original name
             });
 
@@ -282,7 +291,7 @@ class ArchiveService {
 
                 const result = await executeGraphQL(MOVE_NODE, {
                     pathOrId: nodeUuid,
-                    destParentPath,
+                    destParentPathOrId: destParentPath,
                     destName: uniqueName
                 });
 
@@ -463,6 +472,179 @@ class ArchiveService {
                 canArchive: false,
                 reason: 'error',
                 message: error.message || 'Validation failed'
+            };
+        }
+    }
+
+    /**
+     * Get archive information for a node
+     * @param {string} nodePath - Path to the archived node
+     * @returns {Promise<Object>} Archive information
+     */
+    async getArchiveInfo(nodePath) {
+        try {
+            // Query in EDIT workspace where archived content exists
+            const query = `
+                ${FRAGMENTS}
+                
+                query GetArchivedNodeInfo($path: String!) {
+                    jcr(workspace: EDIT) {
+                        nodeByPath(path: $path) {
+                            ...CoreNodeFields
+                            displayName
+                            properties {
+                                name
+                                value
+                            }
+                        }
+                    }
+                }
+            `;
+
+            const result = await executeGraphQL(query, {path: nodePath});
+            // ExecuteGraphQL returns result.data, so we access jcr directly
+            const node = result?.jcr?.nodeByPath;
+
+            if (!node) {
+                console.error('[ArchiveService] Node not found at path:', nodePath);
+                console.error('[ArchiveService] Query result:', result);
+                throw new Error(`Node not found at path: ${nodePath}`);
+            }
+
+            const isArchived = node.mixinTypes?.some(m => m.name === 'jmix:archived');
+            const properties = node.properties || [];
+
+            // Extract archive properties
+            const archivedProp = properties.find(p => p.name === 'archived');
+            const archivedAtProp = properties.find(p => p.name === 'archivedAt');
+            const archivedByProp = properties.find(p => p.name === 'archivedBy');
+            const originalPathProp = properties.find(p => p.name === 'originalPath');
+            const originalParentIdProp = properties.find(p => p.name === 'originalParentId');
+
+            // Get original parent path by looking up the parent ID
+            let originalParentPath = null;
+            if (originalParentIdProp?.value) {
+                try {
+                    const parentResult = await executeGraphQL(`
+                        query GetNodeById($uuid: String!) {
+                            jcr(workspace: EDIT) {
+                                nodeById(uuid: $uuid) {
+                                    path
+                                }
+                            }
+                        }
+                    `, {uuid: originalParentIdProp.value});
+                    // ExecuteGraphQL returns result.data, so access jcr directly
+                    originalParentPath = parentResult?.jcr?.nodeById?.path;
+                } catch (e) {
+                    console.warn('[ArchiveService] Could not find original parent:', e);
+                }
+            }
+
+            return {
+                isArchived,
+                nodeInfo: {
+                    name: node.name,
+                    displayName: node.displayName,
+                    path: node.path,
+                    uuid: node.uuid,
+                    primaryNodeType: node.primaryNodeType?.name
+                },
+                archived: archivedProp?.value,
+                archivedAt: archivedAtProp?.value,
+                archivedBy: archivedByProp?.value,
+                originalPath: originalPathProp?.value,
+                originalParentId: originalParentIdProp?.value,
+                originalParentPath
+            };
+        } catch (error) {
+            console.error('[ArchiveService] Failed to get archive info:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Restore archived node to original or new location
+     * @param {string} nodePath - Path to archived node
+     * @param {string} targetParentPath - Path to parent where node should be restored
+     * @returns {Promise<Object>} Restore result
+     */
+    async restoreNode(nodePath, targetParentPath) {
+        try {
+            console.log('[ArchiveService] Restoring node:', nodePath, 'to parent:', targetParentPath);
+
+            // Step 1: Get node info
+            const nodeResult = await executeGraphQL(GET_NODE_INFO, {path: nodePath});
+            // ExecuteGraphQL returns result.data, so access jcr directly
+            const node = nodeResult?.jcr?.nodeByPath;
+
+            if (!node) {
+                throw new Error('Node not found');
+            }
+
+            // Step 2: Verify target parent exists
+            const parentExists = await this.checkPathExists(targetParentPath);
+            if (!parentExists) {
+                throw new Error('Target parent path does not exist');
+            }
+
+            // Step 3: Check if a node with same name already exists at destination
+            const destinationPath = `${targetParentPath}/${node.name}`;
+            const destExists = await this.checkPathExists(destinationPath);
+            let finalName = node.name;
+
+            if (destExists) {
+                // Generate unique name
+                finalName = await generateUniqueName(targetParentPath, node.name);
+                console.log('[ArchiveService] Destination exists, using unique name:', finalName);
+            }
+
+            // Step 4: Move node to target location
+            console.log('[ArchiveService] Moving node...');
+            const moveResult = await executeGraphQL(MOVE_NODE, {
+                pathOrId: nodePath,
+                destParentPathOrId: targetParentPath,
+                destName: finalName
+            });
+
+            console.log('[ArchiveService] Move result:', JSON.stringify(moveResult, null, 2));
+
+            if (!moveResult?.jcr?.moveNode?.node) {
+                console.error('[ArchiveService] Move result structure unexpected:', moveResult);
+                throw new Error('Failed to move node');
+            }
+
+            const movedNodePath = moveResult.jcr.moveNode.node.path;
+            console.log('[ArchiveService] Node moved to:', movedNodePath);
+
+            // Step 5: Remove jmix:archived mixin (properties will be automatically removed)
+            console.log('[ArchiveService] Removing archived mixin...');
+            const removeMixinResult = await executeGraphQL(`
+                mutation RemoveMixin($pathOrId: String!) {
+                    jcr(workspace: EDIT) {
+                        mutateNode(pathOrId: $pathOrId) {
+                            removeMixins(mixins: ["jmix:archived"])
+                        }
+                    }
+                }
+            `, {pathOrId: movedNodePath});
+
+            if (!removeMixinResult?.jcr?.mutateNode) {
+                throw new Error('Failed to remove archived mixin');
+            }
+
+            console.log('[ArchiveService] Archived mixin removed successfully');
+
+            return {
+                success: true,
+                destinationPath: movedNodePath,
+                message: 'Content restored successfully'
+            };
+        } catch (error) {
+            console.error('[ArchiveService] Restore failed:', error);
+            return {
+                success: false,
+                message: error.message || 'Failed to restore content'
             };
         }
     }

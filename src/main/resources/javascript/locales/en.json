@@ -2,6 +2,7 @@
   "archive": {
     "label": "Archive",
     "label.archiveContent": "Archive Content",
+    "label.restoreArchive": "Restore Archive",
     "dialog.title.archive": "Archive Content",
     "dialog.title.published": "Cannot Archive Published Content",
     "dialog.title.alreadyArchived": "Already Archived",
