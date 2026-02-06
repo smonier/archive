@@ -9,6 +9,7 @@ import {Archive} from '@jahia/moonstone';
 import ArchiveService from '../services/ArchiveService';
 import {getErrorMessage} from '../utils/archiveUtils';
 import dialogManager from '../utils/DialogManager';
+import {useNodeChecks} from '@jahia/data-helper';
 
 /**
  * Show notification to user
@@ -31,6 +32,13 @@ const showNotification = (message, variant = 'info') => {
  * Main Archive Action Component
  */
 export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
+    const {checksResult} = useNodeChecks({path}, {
+        showOnNodeTypes: ['jnt:page', 'jmix:editorialContent', 'jmix:archivable'],
+        hideOnNodeTypes: ['jnt:archiveContentFolder', 'jmix:archived'],
+        hideForPaths: ['^/sites/((?!/).)+/contents/archive/?$'],
+        requiredPermission: ['archiveContent']
+    });
+
     /**
      * Handle action click - validate before showing confirmation
      */
@@ -94,7 +102,7 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
     };
 
     // If render function provided, use it (for menu rendering)
-    if (Render) {
+    if (Render && checksResult) {
         return <Render {...otherProps} onClick={handleClick}/>;
     }
 

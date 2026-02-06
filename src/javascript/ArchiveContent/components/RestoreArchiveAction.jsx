@@ -113,7 +113,7 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
     };
 
     // If render function provided, use it (for menu rendering)
-    if (checksResult) {
+    if (Render && checksResult) {
         return <Render {...otherProps} onClick={handleClick}/>;
     }
 
