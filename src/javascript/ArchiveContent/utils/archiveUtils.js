@@ -5,7 +5,7 @@
 /**
  * Archive folder name constant
  */
-export const ARCHIVE_FOLDER_NAME = 'archive';
+export const ARCHIVE_FOLDER_NAME = 'Archives';
 
 /**
  * Get the archive folder path for a given site

@@ -21,7 +21,7 @@ const registerArchiveManagerComponents = () => {
             label: 'archive:archive.label.archiveManager.name',
             appsTarget: 'archive-manager',
             isEnabled: siteKey => siteKey !== 'systemsite',
-            rootPath: '/sites/{site}/archive',
+            rootPath: '/sites/{site}/Archives',
             tableConfig: {
                 queryHandler: ArchivedNodesQueryHandler,
                 showHeader: true,
