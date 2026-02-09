@@ -6,6 +6,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {registry} from '@jahia/ui-extender';
 import {Archive} from '@jahia/moonstone';
+import {useApolloClient} from 'react-apollo';
 import ArchiveService from '../services/ArchiveService';
 import {getErrorMessage} from '../utils/archiveUtils';
 import dialogManager from '../utils/DialogManager';
@@ -32,12 +33,24 @@ const showNotification = (message, variant = 'info') => {
  * Main Archive Action Component
  */
 export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
+    const client = useApolloClient();
     const {checksResult} = useNodeChecks({path}, {
         showOnNodeTypes: ['jnt:page', 'jmix:editorialContent', 'jmix:archivable'],
         hideOnNodeTypes: ['jnt:archiveContentFolder', 'jmix:archived'],
         hideForPaths: ['^/sites/((?!/).)+/contents/archive/?$'],
         requiredPermission: ['archiveContent']
     });
+
+    // Get triggerRefetchAll from jContent if available
+    const triggerRefetchAll = React.useMemo(() => {
+        try {
+            const jcontentRefetches = window.jahia?.jcontent?.refetches;
+            return jcontentRefetches?.triggerRefetchAll || (() => console.log('[Archive] triggerRefetchAll not available'));
+        } catch (e) {
+            console.warn('[Archive] Could not get triggerRefetchAll:', e);
+            return () => {};
+        }
+    }, []);
 
     /**
      * Handle action click - validate before showing confirmation
@@ -87,6 +100,19 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
 
             if (result.success) {
                 showNotification(`Content archived successfully to ${result.destinationPath}`, 'success');
+
+                // Clear Apollo cache for both paths
+                try {
+                    client.cache.flushNodeEntryByPath(path);
+                    if (result.destinationPath) {
+                        client.cache.flushNodeEntryByPath(result.destinationPath);
+                    }
+                } catch (e) {
+                    console.warn('[Archive] Cache flush failed:', e);
+                }
+
+                // Trigger iframe and component refresh
+                triggerRefetchAll();
 
                 // Trigger content refresh if possible
                 if (otherProps.refetch) {

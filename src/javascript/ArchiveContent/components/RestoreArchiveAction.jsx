@@ -6,6 +6,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {registry} from '@jahia/ui-extender';
 import {Unarchive} from '@jahia/moonstone';
+import {useApolloClient} from 'react-apollo';
 import ArchiveService from '../services/ArchiveService';
 import {getErrorMessage} from '../utils/archiveUtils';
 import dialogManager from '../utils/DialogManager';
@@ -29,10 +30,22 @@ const showNotification = (message, variant = 'info') => {
  * Main Restore Archive Action Component
  */
 export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
+    const client = useApolloClient();
     const {checksResult} = useNodeChecks({path}, {
         showOnNodeTypes: ['jmix:archived'],
         requiredPermission: ['archiveContent']
     });
+
+    // Get triggerRefetchAll from jContent if available
+    const triggerRefetchAll = React.useMemo(() => {
+        try {
+            const jcontentRefetches = window.jahia?.jcontent?.refetches;
+            return jcontentRefetches?.triggerRefetchAll || (() => console.log('[Restore] triggerRefetchAll not available'));
+        } catch (e) {
+            console.warn('[Restore] Could not get triggerRefetchAll:', e);
+            return () => {};
+        }
+    }, []);
 
     /**
      * Handle action click - validate and show restore dialog
@@ -75,6 +88,19 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
 
             if (result.success) {
                 showNotification(`Content restored successfully to ${result.destinationPath}`, 'success');
+
+                // Clear Apollo cache for both paths
+                try {
+                    client.cache.flushNodeEntryByPath(path);
+                    if (result.destinationPath) {
+                        client.cache.flushNodeEntryByPath(result.destinationPath);
+                    }
+                } catch (e) {
+                    console.warn('[Restore] Cache flush failed:', e);
+                }
+
+                // Trigger iframe and component refresh
+                triggerRefetchAll();
 
                 // Trigger content refresh if possible
                 if (otherProps.refetch) {

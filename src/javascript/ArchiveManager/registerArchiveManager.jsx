@@ -29,14 +29,16 @@ const registerArchiveManagerComponents = () => {
                 viewSelector: undefined
             },
             treeConfig: {
+                hideRoot: true,
                 rootLabel: 'archive:archive.label.archiveManager.name',
+                icon: <Archive/>,
                 selectableTypes: ['jnt:archiveContentFolder'],
                 openableTypes: ['jnt:archiveContentFolder']
             }
         });
     }
 
-    console.log('%c Archive Manager registered', 'color: #3c8cba');
+    console.log('[ArchiveContent] Archive Manager registered');
 };
 
 export default registerArchiveManagerComponents;

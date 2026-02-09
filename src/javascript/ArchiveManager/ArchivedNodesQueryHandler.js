@@ -5,9 +5,15 @@
 
 import {ArchivedNodesQuery} from './ArchivedNodesQueryHandler.gql-queries';
 
+import {archiveColumns} from './ArchiveManager.columns';
+
 export const ArchivedNodesQueryHandler = {
     getQuery() {
         return ArchivedNodesQuery;
+    },
+
+    getColumns() {
+        return archiveColumns;
     },
 
     getQueryVariables({path, lang, uilang, pagination, sort}) {
