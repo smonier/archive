@@ -37,7 +37,7 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
     const {checksResult} = useNodeChecks({path}, {
         showOnNodeTypes: ['jnt:page', 'jmix:editorialContent', 'jmix:archivable'],
         hideOnNodeTypes: ['jnt:archiveContentFolder', 'jmix:archived'],
-        hideForPaths: ['^/sites/((?!/).)+/contents/archive/?$'],
+        hideForPaths: ['^/sites/((?!/).)+/Archives/?$'],
         requiredPermission: ['archiveContent']
     });
 
@@ -151,8 +151,9 @@ export const registerArchiveAction = () => {
         buttonLabel: 'archive:archive.label.archiveContent',
         showOnNodeTypes: ['jnt:page', 'jmix:editorialContent', 'jmix:archivable'],
         hideOnNodeTypes: ['jnt:archiveContentFolder', 'jmix:archived'],
-        hideForPaths: ['^/sites/((?!/).)+/contents/archive/?$'],
+        hideForPaths: ['^/sites/((?!/).)+/Archives/?$'],
         requiredPermission: 'archiveContent',
+        requireModuleInstalledOnSite: 'archive',
         isModal: true,
         hasBypassChildrenLimit: false,
         component: ArchiveContentAction

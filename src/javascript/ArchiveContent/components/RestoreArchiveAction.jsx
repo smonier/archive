@@ -162,6 +162,7 @@ export const registerRestoreArchiveAction = () => {
         buttonLabel: 'archive:archive.label.restoreArchive',
         showOnNodeTypes: ['jmix:archived'],
         requiredPermission: 'archiveContent',
+        requireModuleInstalledOnSite: 'archive',
         isModal: true,
         component: RestoreArchiveAction
     });

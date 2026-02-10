@@ -162,8 +162,8 @@ class ArchiveService {
      * Create archive folder
      */
     async createArchiveFolder(siteKey) {
-        const parentPath = `/sites/${siteKey}/contents`;
-        const folderName = 'archive';
+        const parentPath = `/sites/${siteKey}`;
+        const folderName = 'Archives';
 
         debugLog('Creating archive folder at:', `${parentPath}/${folderName}`);
 
