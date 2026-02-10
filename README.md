@@ -46,19 +46,17 @@ src/main/resources/
 
 ```
 /<siteKey>/
-  └── contents/
-      └── archive/                   (jnt:archiveContentFolder)
-          └── <YYYY>/                (jnt:contentFolder)
-              └── <MM>/              (jnt:contentFolder)
-                  └── [archived-content-nodes]
+  └── Archives/                      (jnt:archiveContentFolder)
+      └── <YYYY>/                    (jnt:contentFolder)
+          └── <MM>/                  (jnt:contentFolder)
+              └── [archived-content-nodes]
 ```
 
 ### Example
 
 ```
 /mysite/
-  └── contents/
-      └── archive/
+  └── Archives/
           └── 2026/
               └── 02/
                   ├── old-news-article
@@ -99,14 +97,14 @@ Mixin applied to archived content nodes.
 
 2. **Preparation Phase** (if validation passes)
    - Resolve site key from node path
-   - Check if archive folder exists at `/<siteKey>/contents/archive`
+   - Check if archive folder exists at `/<siteKey>/Archives`
    - Create archive folder if missing (transparent, first-run only)
    - Ensure date folders (YYYY/MM) exist, create if needed
 
 3. **Archive Operation**
    - Add `jmix:archived` mixin to the node
    - Set archive properties (archived, archivedAt, archivedBy, originalPath, originalParentId)
-   - Move node to `/<siteKey>/contents/archive/<YYYY>/<MM>/`
+   - Move node to `/<siteKey>/Archives/<YYYY>/<MM>/`
    - Handle name collisions by appending `-archived-<timestamp>` suffix
 
 4. **Completion**
@@ -209,7 +207,7 @@ export const ARCHIVE_FOLDER_NAME = 'archive'; // Change to your preference
 ### Required Permissions
 
 - `jcr:write` permission on the content node
-- `jcr:addChildNodes` on `/<siteKey>/contents/` (for first-run folder creation)
+- `jcr:addChildNodes` on `/<siteKey>/` (for first-run folder creation)
 
 ### Debug Logging
 
@@ -265,7 +263,7 @@ Test scenarios:
 ## Troubleshooting
 
 ### Archive folder not created
-- Check user has `jcr:addChildNodes` permission on `/<siteKey>/contents/`
+- Check user has `jcr:addChildNodes` permission on `/<siteKey>/`
 - Verify `jnt:archiveContentFolder` node type is registered
 - Check console for GraphQL errors
 
