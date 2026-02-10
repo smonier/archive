@@ -36,7 +36,7 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
         showOnNodeTypes: ['jnt:page', 'jmix:editorialContent', 'jmix:archivable'],
         hideOnNodeTypes: ['jnt:archiveContentFolder', 'jmix:archived'],
         hideForPaths: ['^/sites/((?!/).)+/Archives/?$'],
-        requiredPermission: ['archiveContent']
+        requiredPermission: ['archiveContent', 'unarchiveContent']
     });
 
     // Get triggerRefetchAll from jContent if available

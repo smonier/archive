@@ -31,7 +31,7 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
     const client = useApolloClient();
     const {checksResult} = useNodeChecks({path}, {
         showOnNodeTypes: ['jmix:archived'],
-        requiredPermission: ['archiveContent']
+        requiredPermission: ['unarchiveContent']
     });
 
     // Get triggerRefetchAll from jContent if available
@@ -156,7 +156,7 @@ export const registerRestoreArchiveAction = () => {
         buttonIcon: <Unarchive/>,
         buttonLabel: 'archive:archive.label.restoreArchive',
         showOnNodeTypes: ['jmix:archived'],
-        requiredPermission: 'archiveContent',
+        requiredPermission: 'unarchiveContent',
         requireModuleInstalledOnSite: 'archive',
         isModal: true,
         component: RestoreArchiveAction

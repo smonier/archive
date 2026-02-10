@@ -9,13 +9,13 @@ This extension provides a safe, controlled way to archive unpublished content in
 ## Features
 
 - **Content Actions Integration**: Archive action accessible from the Content Actions menu (target: `contentActions:999`)
-- **Date-Organized Structure**: Automatic organization by year/month (YYYY/MM) using Jahia's autosplit capability
+- **Date-Organized Structure**: Automatic organization by year/month (YYYY/MM)
 - **Publication Safety**: Prevents archiving of published content with clear warning dialogs
 - **Metadata Preservation**: Stores original path, parent ID, archive timestamp, and archiving user
 - **GraphQL-Based**: All repository operations use Jahia GraphQL mutations (no REST/JCR API)
 - **Moonstone UX**: Professional dialogs, toasts, loading states, and error handling
 - **Multi-language**: English and French localization included
-- **Permission-Aware**: Respects Jahia permissions (requires `jcr:write`)
+- **Permission-Aware**: Custom permissions for archive, unarchive, and management operations
 
 ## Architecture
 
@@ -189,7 +189,10 @@ If content is already archived:
    - Copy the JAR to `digital-factory-data/modules/`
    - Or deploy via Jahia Module Manager
 
-3. The extension auto-registers on module load
+3. On module load:
+   - Custom permissions are automatically registered ([permissions.xml](src/main/import/permissions.xml))
+   - Pre-configured roles are imported ([roles.xml](src/main/import/roles.xml))
+   - UI extension auto-registers
 
 ## Configuration
 
@@ -205,8 +208,36 @@ export const ARCHIVE_FOLDER_NAME = 'archive'; // Change to your preference
 
 ### Required Permissions
 
+The module defines three custom permissions:
+
+#### archiveContent
+- **Purpose**: Allows archiving of unpublished content
+- **Required for**: Using the Archive action from Content Actions menu
+- **Default roles**: editor-in-chief, senior-editor, site-administrator
+
+#### unarchiveContent
+- **Purpose**: Allows restoration of archived content
+- **Required for**: Unarchive operations (if implemented)
+- **Default roles**: editor-in-chief, site-administrator
+
+#### manageArchive
+- **Purpose**: Allows managing archive folder and settings
+- **Required for**: Administrative archive operations
+- **Default roles**: site-administrator
+
+**Additional JCR permissions needed:**
 - `jcr:write` permission on the content node
 - `jcr:addChildNodes` on `/<siteKey>/` (for first-run folder creation)
+
+### Roles
+
+The module provides pre-configured roles in [roles.xml](src/main/import/roles.xml):
+
+- **editor-in-chief**: `archiveContent`, `unarchiveContent`
+- **senior-editor**: `archiveContent`
+- **site-administrator**: `archiveContent`, `unarchiveContent`, `manageArchive`
+
+These roles can be assigned to users through Jahia's administration interface or customized as needed.
 
 ### Debug Logging
 
@@ -267,7 +298,8 @@ Test scenarios:
 - Check console for GraphQL errors
 
 ### Cannot archive (permission denied)
-- Ensure user has `jcr:write` on the content node
+- Ensure user has the `archiveContent` permission (check their assigned roles)
+- Verify user has `jcr:write` on the content node
 - Check if node is locked by another user
 - Verify user has access to the content's site
 
