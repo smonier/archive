@@ -16,13 +16,11 @@ import {useNodeChecks} from '@jahia/data-helper';
  * Show notification to user
  */
 const showNotification = (message, variant = 'info') => {
-    if (window.jahia && window.jahia.toastDispatcher) {
+    if (window.jahia?.toastDispatcher) {
         window.jahia.toastDispatcher.add({
             message,
             variant
         });
-    } else {
-        console.log(`[Archive] ${message}`);
     }
 };
 
@@ -45,9 +43,8 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
     const triggerRefetchAll = React.useMemo(() => {
         try {
             const jcontentRefetches = window.jahia?.jcontent?.refetches;
-            return jcontentRefetches?.triggerRefetchAll || (() => console.log('[Archive] triggerRefetchAll not available'));
-        } catch (e) {
-            console.warn('[Archive] Could not get triggerRefetchAll:', e);
+            return jcontentRefetches?.triggerRefetchAll || (() => {});
+        } catch {
             return () => {};
         }
     }, []);
@@ -58,12 +55,8 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
     const handleClick = async () => {
         try {
             const validation = await ArchiveService.validateArchive(path);
-            console.log('[ArchiveContentAction] Validation result:', validation);
 
             if (!validation.canArchive) {
-                console.log('[ArchiveContentAction] Cannot archive, reason:', validation.reason);
-                console.log('[ArchiveContentAction] Published languages:', validation.publishedLanguages);
-
                 // Show dialog/notification immediately before component unmounts
                 if (validation.reason === 'published') {
                     dialogManager.showPublishedWarningDialog({
@@ -107,8 +100,8 @@ export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
                     if (result.destinationPath) {
                         client.cache.flushNodeEntryByPath(result.destinationPath);
                     }
-                } catch (e) {
-                    console.warn('[Archive] Cache flush failed:', e);
+                } catch {
+                    // Cache flush failed silently - not critical
                 }
 
                 // Trigger iframe and component refresh

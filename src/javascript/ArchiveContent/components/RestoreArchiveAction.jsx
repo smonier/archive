@@ -16,13 +16,11 @@ import {useNodeChecks} from '@jahia/data-helper';
  * Show notification to user
  */
 const showNotification = (message, variant = 'info') => {
-    if (window.jahia && window.jahia.toastDispatcher) {
+    if (window.jahia?.toastDispatcher) {
         window.jahia.toastDispatcher.add({
             message,
             variant
         });
-    } else {
-        console.log(`[Restore] ${message}`);
     }
 };
 
@@ -40,9 +38,8 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
     const triggerRefetchAll = React.useMemo(() => {
         try {
             const jcontentRefetches = window.jahia?.jcontent?.refetches;
-            return jcontentRefetches?.triggerRefetchAll || (() => console.log('[Restore] triggerRefetchAll not available'));
-        } catch (e) {
-            console.warn('[Restore] Could not get triggerRefetchAll:', e);
+            return jcontentRefetches?.triggerRefetchAll || (() => {});
+        } catch {
             return () => {};
         }
     }, []);
@@ -53,7 +50,6 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
     const handleClick = async () => {
         try {
             const archiveInfo = await ArchiveService.getArchiveInfo(path);
-            console.log('[RestoreArchiveAction] Archive info:', archiveInfo);
 
             if (!archiveInfo.isArchived) {
                 showNotification('This content is not archived', 'warning');
@@ -62,7 +58,6 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
 
             // Check if original parent still exists
             const parentExists = await ArchiveService.checkPathExists(archiveInfo.originalParentPath);
-            console.log('[RestoreArchiveAction] Parent exists:', parentExists);
 
             // Show restore confirmation dialog
             dialogManager.showRestoreConfirmDialog({
@@ -95,8 +90,8 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
                     if (result.destinationPath) {
                         client.cache.flushNodeEntryByPath(result.destinationPath);
                     }
-                } catch (e) {
-                    console.warn('[Restore] Cache flush failed:', e);
+                } catch {
+                    // Cache flush failed silently - not critical
                 }
 
                 // Trigger iframe and component refresh

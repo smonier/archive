@@ -208,13 +208,3 @@ export const executeGraphQLSilent = async (query, variables = {}) => {
     return result.data;
 };
 
-/**
- * Log debug information (only in development)
- * @param {string} message - Debug message
- * @param {any} data - Optional data to log
- */
-export const debugLog = (message, data) => {
-    if (process.env.NODE_ENV === 'development') {
-        console.debug(`[ArchiveContent] ${message}`, data || '');
-    }
-};

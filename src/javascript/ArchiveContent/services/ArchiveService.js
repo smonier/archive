@@ -28,8 +28,7 @@ import {
     generateUniqueName,
     formatJCRDate,
     executeGraphQL,
-    executeGraphQLSilent,
-    debugLog
+    executeGraphQLSilent
 } from '../utils/archiveUtils';
 
 /**
@@ -57,7 +56,6 @@ class ArchiveService {
      * Get node information
      */
     async getNodeInfo(path) {
-        debugLog('Fetching node info for:', path);
         const data = await executeGraphQL(GET_NODE_INFO, {path});
         return data.jcr?.nodeByPath;
     }
@@ -67,10 +65,8 @@ class ArchiveService {
      */
     async getSiteLanguages(path) {
         try {
-            debugLog('Fetching site languages for:', path);
             const data = await executeGraphQL(GET_SITE_LANGUAGES, {path});
             const languages = data.jcr?.nodeByPath?.site?.languages?.values;
-            debugLog('Site languages:', languages);
             return languages || ['en'];
         } catch (error) {
             console.error('[ArchiveService] Error fetching site languages:', error);
@@ -82,16 +78,12 @@ class ArchiveService {
      * Check publication status for all site languages
      */
     async getPublicationStatusForAllLanguages(path, languages) {
-        debugLog('Checking publication status for path:', path, 'languages:', languages);
-
         const statusChecks = await Promise.all(
             languages.map(async lang => {
                 try {
-                    debugLog(`Checking publication status for language: ${lang}`);
                     const data = await executeGraphQL(GET_PUBLICATION_STATUS, {path, language: lang});
                     const status = data.jcr?.nodeByPath?.aggregatedPublicationInfo?.publicationStatus;
                     const isPublished = status === 'PUBLISHED' || status === 'MODIFIED';
-                    debugLog(`Language ${lang}: status=${status}, isPublished=${isPublished}`);
                     return {
                         language: lang,
                         status,
@@ -111,7 +103,6 @@ class ArchiveService {
      * Get site information from node path
      */
     async getSiteInfo(path) {
-        debugLog('Fetching site info for:', path);
         const data = await executeGraphQL(GET_SITE_INFO, {path});
         return data.jcr?.nodeByPath?.site;
     }
@@ -120,7 +111,6 @@ class ArchiveService {
      * Get current user
      */
     async getCurrentUser() {
-        debugLog('Fetching current user');
         const data = await executeGraphQL(GET_CURRENT_USER);
         return data.currentUser;
     }
@@ -130,7 +120,6 @@ class ArchiveService {
      */
     async checkPathExists(path) {
         try {
-            debugLog('Checking if path exists:', path);
             const data = await executeGraphQLSilent(CHECK_PATH_EXISTS, {path});
             return Boolean(data.jcr?.nodeByPath);
         } catch (error) {
@@ -150,7 +139,6 @@ class ArchiveService {
      */
     async checkArchiveFolderExists(archiveFolderPath) {
         try {
-            debugLog('Checking archive folder:', archiveFolderPath);
             const data = await executeGraphQL(CHECK_ARCHIVE_FOLDER, {path: archiveFolderPath});
             return Boolean(data.jcr?.nodeByPath);
         } catch {
@@ -164,8 +152,6 @@ class ArchiveService {
     async createArchiveFolder(siteKey) {
         const parentPath = `/sites/${siteKey}`;
         const folderName = 'Archives';
-
-        debugLog('Creating archive folder at:', `${parentPath}/${folderName}`);
 
         const data = await executeGraphQL(CREATE_ARCHIVE_FOLDER, {
             parentPath,
@@ -183,21 +169,16 @@ class ArchiveService {
         const year = date.getFullYear().toString();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
 
-        console.log('[ArchiveService] Ensuring date folders exist for:', {archiveFolderPath, year, month});
-
         // Check/create year folder
         const yearPath = `${archiveFolderPath}/${year}`;
         let yearExists = await this.checkPathExists(yearPath);
-        console.log('[ArchiveService] Year folder exists?', yearExists, 'Path:', yearPath);
 
         if (!yearExists) {
-            console.log('[ArchiveService] Creating year folder:', yearPath);
             try {
-                const result = await executeGraphQL(CREATE_FOLDER, {
+                await executeGraphQL(CREATE_FOLDER, {
                     parentPath: archiveFolderPath,
                     name: year
                 });
-                console.log('[ArchiveService] Year folder created:', result);
 
                 // Verify it was created
                 yearExists = await this.checkPathExists(yearPath);
@@ -213,16 +194,13 @@ class ArchiveService {
         // Check/create month folder
         const monthPath = `${yearPath}/${month}`;
         let monthExists = await this.checkPathExists(monthPath);
-        console.log('[ArchiveService] Month folder exists?', monthExists, 'Path:', monthPath);
 
         if (!monthExists) {
-            console.log('[ArchiveService] Creating month folder:', monthPath);
             try {
-                const result = await executeGraphQL(CREATE_FOLDER, {
+                await executeGraphQL(CREATE_FOLDER, {
                     parentPath: yearPath,
                     name: month
                 });
-                console.log('[ArchiveService] Month folder created:', result);
 
                 // Verify it was created
                 monthExists = await this.checkPathExists(monthPath);
@@ -243,7 +221,6 @@ class ArchiveService {
      * Add archived mixin to node
      */
     async addArchivedMixin(path) {
-        debugLog('Adding archived mixin to:', path);
         await executeGraphQL(ADD_MIXIN, {
             path,
             mixins: ['jmix:archived']
@@ -254,8 +231,6 @@ class ArchiveService {
      * Set archive properties on node
      */
     async setArchiveProperties(path, originalPath, originalParentId, userUuid) {
-        debugLog('Setting archive properties on:', path);
-
         const now = formatJCRDate();
 
         await executeGraphQL(SET_PROPERTIES, {
@@ -272,8 +247,6 @@ class ArchiveService {
      * Move node to archive destination
      */
     async moveNode(nodeUuid, destParentPath, originalName) {
-        debugLog('Moving node to:', destParentPath);
-
         try {
             // Try with original name first
             const result = await executeGraphQL(MOVE_NODE, {
@@ -286,7 +259,6 @@ class ArchiveService {
         } catch (error) {
             // If name collision, try with unique name
             if (error.message.includes('already exists') || error.message.includes('collision')) {
-                debugLog('Name collision detected, generating unique name');
                 const uniqueName = generateUniqueName(originalName);
 
                 const result = await executeGraphQL(MOVE_NODE, {
@@ -349,7 +321,6 @@ class ArchiveService {
             let archiveFolderExists = await this.checkArchiveFolderExists(archiveFolderPath);
 
             if (!archiveFolderExists) {
-                console.log('[ArchiveService] Archive folder does not exist, creating:', archiveFolderPath);
                 await this.createArchiveFolder(siteKey);
 
                 // Verify it was created
@@ -357,12 +328,9 @@ class ArchiveService {
                 if (!archiveFolderExists) {
                     throw new Error('Failed to create archive folder');
                 }
-
-                console.log('[ArchiveService] Archive folder created successfully');
             }
 
             // Step 6: Ensure date folders exist
-            console.log('[ArchiveService] Creating date folders in:', archiveFolderPath);
             const destinationPath = await this.ensureDateFoldersExist(archiveFolderPath);
 
             // Step 7: Get current user
@@ -392,8 +360,6 @@ class ArchiveService {
                 destinationPath,
                 nodeInfo.name
             );
-
-            debugLog('Archive operation completed successfully');
 
             return {
                 success: true,

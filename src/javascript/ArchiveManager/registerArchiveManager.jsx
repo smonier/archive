@@ -39,8 +39,6 @@ const registerArchiveManagerComponents = () => {
             }
         });
     }
-
-    console.log('[ArchiveContent] Archive Manager registered');
 };
 
 export default registerArchiveManagerComponents;
