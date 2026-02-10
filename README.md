@@ -1,14 +1,16 @@
 # Archive Content - Jahia UI Extension
 
-A production-ready Jahia UI Extension that enables archiving of JCR content from the Content Editor's Content Actions menu.
+A production-ready Jahia UI Extension that enables archiving and restoring of JCR content from the jContent editor's Content Actions menu, plus an Archive Manager for browsing archived content.
 
 ## Overview
 
-This extension provides a safe, controlled way to archive unpublished content in Jahia DX 8.2+. Archived content is moved to a date-organized archive folder structure and marked with metadata preserving the original location for potential restoration.
+This extension provides a safe, controlled way to archive and restore unpublished content in Jahia DX 8.2+. Archived content is moved to a date-organized archive folder structure and marked with metadata preserving the original location for restoration.
 
 ## Features
 
 - **Content Actions Integration**: Archive action accessible from the Content Actions menu (target: `contentActions:999`)
+- **Restore Capability**: Restore archived content to its original location via Content Actions menu
+- **Archive Manager**: Dedicated accordion in jContent for browsing and managing archived content
 - **Date-Organized Structure**: Automatic organization by year/month (YYYY/MM)
 - **Publication Safety**: Prevents archiving of published content with clear warning dialogs
 - **Metadata Preservation**: Stores original path, parent ID, archive timestamp, and archiving user
@@ -22,17 +24,25 @@ This extension provides a safe, controlled way to archive unpublished content in
 ### Folder Structure
 
 ```
-src/javascript/ArchiveContent/
-├── components/
-│   └── ArchiveContentAction.jsx    # Main React component with dialogs
-├── services/
-│   └── ArchiveService.js            # Core business logic
-├── graphql/
-│   ├── queries.js                   # GraphQL queries
-│   └── mutations.js                 # GraphQL mutations
-├── utils/
-│   └── archiveUtils.js              # Helper functions
-└── index.js                         # Entry point
+src/javascript/
+├── ArchiveContent/
+│   ├── components/
+│   │   ├── ArchiveContentAction.jsx    # Archive action component
+│   │   └── RestoreArchiveAction.jsx    # Restore action component
+│   ├── services/
+│   │   └── ArchiveService.js           # Core business logic
+│   ├── graphql/
+│   │   ├── queries.js                  # GraphQL queries
+│   │   └── mutations.js                # GraphQL mutations
+│   ├── utils/
+│   │   └── archiveUtils.js             # Helper functions
+│   └── index.js                        # Entry point
+└── ArchiveManager/
+    ├── ArchiveManager.jsx              # Archive Manager accordion
+    ├── ArchiveContentLayout.jsx        # Custom content layout
+    ├── ArchiveManager.columns.jsx      # Table column definitions
+    ├── ArchivedNodesQueryHandler.js    # Query handler for archived nodes
+    └── registerArchiveManager.jsx      # Registration logic
 
 src/main/resources/
 ├── META-INF/
@@ -154,7 +164,7 @@ All errors are logged with `[ArchiveContent]` prefix for debugging.
 
 ## Usage
 
-### From Content Editor
+### Archiving Content
 
 1. Select a content node in the Content Editor
 2. Open the **Content Actions** menu (three-dot menu or right-click)
@@ -164,6 +174,27 @@ All errors are logged with `[ArchiveContent]` prefix for debugging.
    - Archive destination preview (YYYY/MM)
 5. Click **Archive** to confirm or **Cancel** to abort
 6. Success notification appears with archive destination path
+
+### Restoring Archived Content
+
+1. Navigate to archived content in the Archive Manager or locate it in Content Editor
+2. Open the **Content Actions** menu
+3. Click **Restore**
+4. Review the confirmation dialog showing:
+   - Content name and current archive location
+   - Original location where it will be restored
+5. Click **Restore** to confirm or **Cancel** to abort
+6. Success notification appears and content is restored to its original location
+
+### Using Archive Manager
+
+1. Open jContent
+2. Navigate to the **Archive Manager** accordion in the left sidebar
+3. Browse archived content organized by year/month
+4. Select any archived content to:
+   - View its properties and metadata
+   - Restore it to its original location
+   - Preview its content
 
 ### Published Content Warning
 
@@ -349,8 +380,8 @@ setCustomProperty: setProperty(
 ## Roadmap
 
 - [x] Unarchive action (restore to original location) - **Completed**
+- [x] Archive search/browser UI - **Completed** (Archive Manager accordion)
 - [ ] Bulk archive (multi-selection support)
-- [ ] Archive search/browser UI
 - [ ] Scheduled auto-archive based on content age
 - [ ] Archive analytics and reporting
 

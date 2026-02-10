@@ -437,7 +437,13 @@ mutation ExportArchive($path: String!) {
 
 ### Restore Archived Content
 
-**Manual Restoration** (until unarchive feature implemented):
+**Using the Restore Action**:
+
+1. Select archived content in Archive Manager or Content Editor
+2. Click "Restore" from Content Actions menu
+3. Content is moved back to its original location with archived mixin removed
+
+**Manual Restoration via GraphQL** (if needed):
 
 1. Identify archived node:
 ```graphql
