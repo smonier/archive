@@ -205,17 +205,15 @@ Moves node to archive destination.
 [jnt:archiveContentFolder] > jnt:contentFolder, 
                               jmix:droppableContent, 
                               jmix:nolive, 
-                              jmix:visibleInContentTree, 
-                              jmix:autoSplitFolders
+                              jmix:visibleInContentTree
 ```
 
-**Purpose**: Root archive folder with auto-splitting capability.
+**Purpose**: Root archive folder.
 
 **Mixins**:
 - `jmix:droppableContent`: Accept dropped content
 - `jmix:nolive`: Never published
 - `jmix:visibleInContentTree`: Visible in navigation
-- `jmix:autoSplitFolders`: Auto-create date subfolders
 
 #### jmix:archived
 

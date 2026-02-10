@@ -74,7 +74,6 @@ Primary node type for the archive root folder.
 - `jmix:droppableContent` - Allows content to be moved into it
 - `jmix:nolive` - Never published to live workspace
 - `jmix:visibleInContentTree` - Visible in content tree navigation
-- `jmix:autoSplitFolders` - Automatic date-based folder creation
 
 ### jmix:archived
 
@@ -279,7 +278,6 @@ Test scenarios:
 
 ### Date folders not created
 - Ensure GraphQL mutations have proper permissions
-- Check if parent archive folder has `jmix:autoSplitFolders`
 - Verify folder creation logic in `ArchiveService.ensureDateFoldersExist()`
 
 ## Extension Points

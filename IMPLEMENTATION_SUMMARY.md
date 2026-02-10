@@ -240,7 +240,7 @@ archive/
 ```
 Parent: jnt:contentFolder
 Mixins: jmix:droppableContent, jmix:nolive, 
-        jmix:visibleInContentTree, jmix:autoSplitFolders
+        jmix:visibleInContentTree
 Location: /<siteKey>/contents/archive
 Purpose: Root folder for archived content
 ```
