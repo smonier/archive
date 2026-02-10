@@ -364,7 +364,7 @@ For issues, questions, or contributions:
 
 ## License
 
-This module is provided as-is for Jahia DX projects.
+This module is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Credits
 

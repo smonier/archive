@@ -573,7 +573,7 @@ jahia.archive.failures.rate
 
 ## License & Credits
 
-**License**: MIT (or your organization's license)
+**License**: MIT License - See [LICENSE](LICENSE) file for details
 
 **Dependencies**:
 - Jahia DX 8.2+ (AGPLv3)
