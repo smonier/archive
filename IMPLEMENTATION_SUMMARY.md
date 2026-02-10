@@ -330,8 +330,8 @@ Purpose: Mark and track archived content
 
 ## Future Enhancements (Roadmap)
 
+- ~~Unarchive action (restore)~~ - **Completed**
 - Bulk archive (multi-selection)
-- Unarchive action (restore)
 - Archive browser UI
 - Scheduled auto-archive
 - Archive analytics

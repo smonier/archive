@@ -345,12 +345,11 @@ setCustomProperty: setProperty(
 1. **Single Selection**: Currently supports single node selection (not bulk archive)
 2. **Manual Unpublish**: Published content must be manually unpublished
 3. **Permission Configuration**: Read-only enforcement requires ACL setup
-4. **No Unarchive UI**: This module provides archive only; restoration requires custom development
 
 ## Roadmap
 
+- [x] Unarchive action (restore to original location) - **Completed**
 - [ ] Bulk archive (multi-selection support)
-- [ ] Unarchive action (restore to original location)
 - [ ] Archive search/browser UI
 - [ ] Scheduled auto-archive based on content age
 - [ ] Archive analytics and reporting

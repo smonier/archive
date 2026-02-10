@@ -134,7 +134,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Single-selection only (bulk archive not yet supported)
 - Manual unpublish required for published content
 - Read-only enforcement depends on ACL configuration
-- No built-in unarchive UI (manual GraphQL restoration needed)
 
 ### Future Improvements
 
