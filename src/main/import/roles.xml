@@ -3,16 +3,13 @@
        xmlns:jcr="http://www.jcp.org/jcr/1.0"
        xmlns:j="http://www.jahia.org/jahia/1.0"
        xmlns:jnt="http://www.jahia.org/jahia/nt/1.0">
-    <editor jcr:primaryType="jnt:role">
-        <!-- Editor-in-Chief can archive content -->
-        <editor-in-chief jcr:primaryType="jnt:role"
-                         j:permissionNames="archiveContent unarchiveContent"
-        />
-        <!-- Senior Editor can archive content -->
-        <senior-editor jcr:primaryType="jnt:role"
-                       j:permissionNames="archiveContent"
-        />
-    </editor>
+    <editor jcr:primaryType="jnt:role"
+            j:permissionNames="archiveContent"
+    />
+    
+    <editor-in-chief jcr:primaryType="jnt:role"
+                     j:permissionNames="archiveContent unarchiveContent"
+    />
     
     <!-- Site Administrator role with full archive management -->
     <site-administrator jcr:primaryType="jnt:role"

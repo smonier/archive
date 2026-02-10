@@ -67,7 +67,7 @@ Production-ready Jahia UI Extension for archiving JCR content from the Content E
 
 10. **roles.xml** - Default role mappings
     - editor-in-chief: archive + unarchive
-    - senior-editor: archive
+    - editor: archive
     - site-administrator: all permissions
 
 11. **Localization files** (en.json, fr.json)

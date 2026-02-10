@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - archiveContent permission
 - unarchiveContent permission (for future use)
 - manageArchive permission (for future use)
-- Default role mappings (editor-in-chief, senior-editor, site-administrator)
+- Default role mappings (editor, editor-in-chief, site-administrator)
 
 ### Technical Details
 

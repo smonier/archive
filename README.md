@@ -213,7 +213,7 @@ The module defines three custom permissions:
 #### archiveContent
 - **Purpose**: Allows archiving of unpublished content
 - **Required for**: Using the Archive action from Content Actions menu
-- **Default roles**: editor-in-chief, senior-editor, site-administrator
+- **Default roles**: editor, editor-in-chief, site-administrator
 
 #### unarchiveContent
 - **Purpose**: Allows restoration of archived content
@@ -233,8 +233,8 @@ The module defines three custom permissions:
 
 The module provides pre-configured roles in [roles.xml](src/main/import/roles.xml):
 
+- **editor**: `archiveContent`
 - **editor-in-chief**: `archiveContent`, `unarchiveContent`
-- **senior-editor**: `archiveContent`
 - **site-administrator**: `archiveContent`, `unarchiveContent`, `manageArchive`
 
 These roles can be assigned to users through Jahia's administration interface or customized as needed.

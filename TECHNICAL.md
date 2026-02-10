@@ -69,7 +69,7 @@ The module defines three permissions in [permissions.xml](src/main/import/permis
 Default role mappings in [roles.xml](src/main/import/roles.xml):
 
 - **editor-in-chief**: archiveContent, unarchiveContent
-- **senior-editor**: archiveContent
+- **editor**: archiveContent
 - **site-administrator**: all archive permissions
 
 #### Custom Role Assignment
