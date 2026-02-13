@@ -4,6 +4,8 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import i18next from 'i18next';
+import {I18nextProvider, useTranslation} from 'react-i18next';
 import {
     Dialog,
     DialogTitle,
@@ -36,35 +38,42 @@ class DialogManager {
             this.hideDialog();
         };
 
-        const DialogComponent = () => (
-            <Dialog fullWidth open maxWidth="sm" onClose={handleClose}>
-                <DialogTitle>Cannot Archive Published Content</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        This content is currently published and cannot be archived.
-                    </DialogContentText>
-                    <Typography variant="body2" sx={{mt: 2}}>
-                        <strong>Content:</strong> {nodeInfo?.displayName || nodeInfo?.name}
-                    </Typography>
-                    <Typography variant="body2">
-                        <strong>Path:</strong> {nodeInfo?.path}
-                    </Typography>
-                    {publishedLanguages && publishedLanguages.length > 0 && (
+        const DialogComponent = () => {
+            const {t} = useTranslation('archive');
+            return (
+                <Dialog fullWidth open maxWidth="sm" onClose={handleClose}>
+                    <DialogTitle>{t('archive:dialog.title.published')}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {t('archive:dialog.message.published')}
+                        </DialogContentText>
                         <Typography variant="body2" sx={{mt: 2}}>
-                            <strong>Published in languages:</strong> {publishedLanguages.map(l => l.language.toUpperCase()).join(', ')}
+                            <strong>{t('archive:dialog.label.content')}</strong> {nodeInfo?.displayName || nodeInfo?.name}
                         </Typography>
-                    )}
-                    <Typography variant="body2" color="error" sx={{mt: 2}}>
-                        Please unpublish this content in all languages before archiving.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Close</Button>
-                </DialogActions>
-            </Dialog>
-        );
+                        <Typography variant="body2">
+                            <strong>{t('archive:dialog.label.currentPath')}</strong> {nodeInfo?.path}
+                        </Typography>
+                        {publishedLanguages && publishedLanguages.length > 0 && (
+                            <Typography variant="body2" sx={{mt: 2}}>
+                                <strong>{t('archive:dialog.label.publishedLanguages')}</strong> {publishedLanguages.map(l => l.language.toUpperCase()).join(', ')}
+                            </Typography>
+                        )}
+                        <Typography variant="body2" color="error" sx={{mt: 2}}>
+                            {t('archive:dialog.message.published.unpublish')}
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>{t('archive:button.close')}</Button>
+                    </DialogActions>
+                </Dialog>
+            );
+        };
 
-        this.root.render(<DialogComponent/>);
+        this.root.render(
+            <I18nextProvider i18n={i18next}>
+                <DialogComponent/>
+            </I18nextProvider>
+        );
     }
 
     showConfirmDialog({nodeInfo, destinationPreview, onConfirm}) {
@@ -81,36 +90,43 @@ class DialogManager {
             }
         };
 
-        const DialogComponent = () => (
-            <Dialog fullWidth open maxWidth="sm" onClose={handleClose}>
-                <DialogTitle>Archive Content</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Are you sure you want to archive this content?
-                    </DialogContentText>
-                    <Typography variant="body2" sx={{mt: 2}}>
-                        <strong>Content:</strong> {nodeInfo?.displayName || nodeInfo?.name}
-                    </Typography>
-                    <Typography variant="body2">
-                        <strong>From:</strong> {nodeInfo?.path}
-                    </Typography>
-                    <Typography variant="body2">
-                        <strong>To:</strong> {destinationPreview}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{mt: 2}}>
-                        The content will be moved to the archive folder and marked with the archived mixin.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button variant="contained" color="primary" onClick={handleConfirm}>
-                        Archive
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        );
+        const DialogComponent = () => {
+            const {t} = useTranslation('archive');
+            return (
+                <Dialog fullWidth open maxWidth="sm" onClose={handleClose}>
+                    <DialogTitle>{t('archive:dialog.title.archive')}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {t('archive:dialog.message.confirm')}
+                        </DialogContentText>
+                        <Typography variant="body2" sx={{mt: 2}}>
+                            <strong>{t('archive:dialog.label.content')}</strong> {nodeInfo?.displayName || nodeInfo?.name}
+                        </Typography>
+                        <Typography variant="body2">
+                            <strong>{t('archive:dialog.label.from')}</strong> {nodeInfo?.path}
+                        </Typography>
+                        <Typography variant="body2">
+                            <strong>{t('archive:dialog.label.to')}</strong> {destinationPreview}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{mt: 2}}>
+                            {t('archive:dialog.message.details')}
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>{t('archive:button.cancel')}</Button>
+                        <Button variant="contained" color="primary" onClick={handleConfirm}>
+                            {t('archive:button.archive')}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            );
+        };
 
-        this.root.render(<DialogComponent/>);
+        this.root.render(
+            <I18nextProvider i18n={i18next}>
+                <DialogComponent/>
+            </I18nextProvider>
+        );
     }
 
     showRestoreConfirmDialog({nodeInfo, archiveInfo, parentExists, customParentPath = null, onConfirm, onSelectParent}) {
@@ -133,82 +149,89 @@ class DialogManager {
         };
 
         const targetPath = customParentPath || archiveInfo.originalParentPath;
-        const targetName = customParentPath ? 'Selected location' : 'Original location';
 
-        const DialogComponent = () => (
-            <Dialog fullWidth open maxWidth="md" onClose={handleClose}>
-                <DialogTitle>Restore Archived Content</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Review the archive information and confirm the restore operation.
-                    </DialogContentText>
+        const DialogComponent = () => {
+            const {t} = useTranslation('archive');
+            const targetName = customParentPath ? t('archive:dialog.label.selectedLocation') : t('archive:dialog.label.originalLocation');
+            return (
+                <Dialog fullWidth open maxWidth="md" onClose={handleClose}>
+                    <DialogTitle>{t('archive:dialog.title.restore')}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {t('archive:dialog.message.restore.confirm')}
+                        </DialogContentText>
 
-                    <Typography variant="subtitle2" sx={{mt: 3, mb: 1}}>
-                        Content Information
-                    </Typography>
-                    <Typography variant="body2">
-                        <strong>Name:</strong> {nodeInfo?.displayName || nodeInfo?.name}
-                    </Typography>
-                    <Typography variant="body2">
-                        <strong>Current path:</strong> {nodeInfo?.path}
-                    </Typography>
+                        <Typography variant="subtitle2" sx={{mt: 3, mb: 1}}>
+                            {t('archive:dialog.section.contentInfo')}
+                        </Typography>
+                        <Typography variant="body2">
+                            <strong>{t('archive:dialog.label.name')}</strong> {nodeInfo?.displayName || nodeInfo?.name}
+                        </Typography>
+                        <Typography variant="body2">
+                            <strong>{t('archive:dialog.label.currentPath')}</strong> {nodeInfo?.path}
+                        </Typography>
 
-                    <Typography variant="subtitle2" sx={{mt: 2, mb: 1}}>
-                        Archive Information
-                    </Typography>
-                    <Typography variant="body2">
-                        <strong>Archived at:</strong> {archiveInfo.archivedAt ? new Date(archiveInfo.archivedAt).toLocaleString() : 'Unknown'}
-                    </Typography>
-                    <Typography variant="body2">
-                        <strong>Original path:</strong> {archiveInfo.originalPath || 'Unknown'}
-                    </Typography>
+                        <Typography variant="subtitle2" sx={{mt: 2, mb: 1}}>
+                            {t('archive:dialog.section.archiveInfo')}
+                        </Typography>
+                        <Typography variant="body2">
+                            <strong>{t('archive:dialog.label.archivedAt')}</strong> {archiveInfo.archivedAt ? new Date(archiveInfo.archivedAt).toLocaleString() : 'Unknown'}
+                        </Typography>
+                        <Typography variant="body2">
+                            <strong>{t('archive:dialog.label.originalPath')}</strong> {archiveInfo.originalPath || 'Unknown'}
+                        </Typography>
 
-                    <Typography variant="subtitle2" sx={{mt: 2, mb: 1}}>
-                        Restore Destination
-                    </Typography>
-                    {!parentExists && !customParentPath ? (
-                        <>
-                            <Typography variant="body2" color="warning.main">
-                                <strong>⚠️ Original parent location no longer exists</strong>
-                            </Typography>
-                            <Typography variant="body2" sx={{mt: 1}}>
-                                The original parent path has been deleted or moved. Please select a new location for this content.
-                            </Typography>
-                        </>
-                    ) : (
-                        <>
-                            <Typography variant="body2">
-                                <strong>{targetName}:</strong> {targetPath}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{mt: 1}}>
-                                The content will be moved to this location and the archived mixin will be removed.
-                            </Typography>
-                        </>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    {!parentExists && !customParentPath ? (
-                        <Button variant="contained" color="primary" onClick={handleSelectParent}>
-                            Select Location
-                        </Button>
-                    ) : (
-                        <>
-                            {parentExists && !customParentPath && (
-                                <Button onClick={handleSelectParent}>
-                                    Choose Different Location
-                                </Button>
-                            )}
-                            <Button variant="contained" color="primary" onClick={handleConfirm}>
-                                Restore
+                        <Typography variant="subtitle2" sx={{mt: 2, mb: 1}}>
+                            {t('archive:dialog.section.restoreDestination')}
+                        </Typography>
+                        {!parentExists && !customParentPath ? (
+                            <>
+                                <Typography variant="body2" color="warning.main">
+                                    <strong>{t('archive:dialog.message.restore.parentMissing')}</strong>
+                                </Typography>
+                                <Typography variant="body2" sx={{mt: 1}}>
+                                    {t('archive:dialog.message.restore.parentMissingInfo')}
+                                </Typography>
+                            </>
+                        ) : (
+                            <>
+                                <Typography variant="body2">
+                                    <strong>{targetName}</strong> {targetPath}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{mt: 1}}>
+                                    {t('archive:dialog.message.restore.details')}
+                                </Typography>
+                            </>
+                        )}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>{t('archive:button.cancel')}</Button>
+                        {!parentExists && !customParentPath ? (
+                            <Button variant="contained" color="primary" onClick={handleSelectParent}>
+                                {t('archive:button.selectLocation')}
                             </Button>
-                        </>
-                    )}
-                </DialogActions>
-            </Dialog>
-        );
+                        ) : (
+                            <>
+                                {parentExists && !customParentPath && (
+                                    <Button onClick={handleSelectParent}>
+                                        {t('archive:button.chooseDifferentLocation')}
+                                    </Button>
+                                )}
+                                <Button variant="contained" color="primary" onClick={handleConfirm}>
+                                    {t('archive:button.restore')}
+                                </Button>
+                            </>
+                        )}
+                    </DialogActions>
+                </Dialog>
+            );
+        };
 
-        this.root.render(<DialogComponent/>);
+        this.root.render(
+            <I18nextProvider i18n={i18next}>
+                <DialogComponent/>
+            </I18nextProvider>
+        );
     }
 
     showPathPickerDialog({nodeInfo, onConfirm}) {
@@ -237,34 +260,41 @@ class DialogManager {
             });
         };
 
-        const DialogComponent = () => (
-            <Dialog fullWidth open maxWidth="sm" onClose={handleClose}>
-                <DialogTitle>Select Restore Location</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Select the location where you want to restore this content.
-                    </DialogContentText>
-                    <Typography variant="body2" sx={{mt: 2, mb: 2}}>
-                        <strong>Content:</strong> {nodeInfo?.displayName || nodeInfo?.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Click &quot;Select Location&quot; to open the content picker and choose a destination folder.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleOpenPicker}
-                    >
-                        Select Location
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        );
+        const DialogComponent = () => {
+            const {t} = useTranslation('archive');
+            return (
+                <Dialog fullWidth open maxWidth="sm" onClose={handleClose}>
+                    <DialogTitle>{t('archive:dialog.title.selectLocation')}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {t('archive:dialog.message.restore.selectLocation')}
+                        </DialogContentText>
+                        <Typography variant="body2" sx={{mt: 2, mb: 2}}>
+                            <strong>{t('archive:dialog.label.content')}</strong> {nodeInfo?.displayName || nodeInfo?.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {t('archive:dialog.message.restore.selectLocationInfo')}
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>{t('archive:button.cancel')}</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleOpenPicker}
+                        >
+                            {t('archive:button.selectLocation')}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            );
+        };
 
-        this.root.render(<DialogComponent/>);
+        this.root.render(
+            <I18nextProvider i18n={i18next}>
+                <DialogComponent/>
+            </I18nextProvider>
+        );
     }
 
     hideDialog() {

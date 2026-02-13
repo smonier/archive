@@ -141,7 +141,7 @@ export const registerArchiveAction = () => {
     registry.addOrReplace('action', 'archiveContent', {
         targets: ['contentActions:99'],
         buttonIcon: <Archive/>,
-        buttonLabel: 'archive:archive.label.archiveContent',
+        buttonLabel: 'archive:label.archiveContent',
         showOnNodeTypes: ['jnt:page', 'jmix:editorialContent', 'jmix:archivable'],
         hideOnNodeTypes: ['jnt:archiveContentFolder', 'jmix:archived'],
         hideForPaths: ['^/sites/((?!/).)+/Archives/?$'],

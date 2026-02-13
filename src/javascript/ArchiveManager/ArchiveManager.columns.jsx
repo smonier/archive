@@ -65,7 +65,7 @@ ArchivedByCell.propTypes = {
 export const archiveColumns = [
     {
         id: 'displayName',
-        header: 'archive:archive.label.archiveManager.table.displayName',
+        header: 'archive:label.archiveManager.table.displayName',
         accessor: row => row.displayName,
         sortable: true,
         property: 'jcr:displayName',
@@ -73,7 +73,7 @@ export const archiveColumns = [
     },
     {
         id: 'type',
-        header: 'archive:archive.label.archiveManager.table.type',
+        header: 'archive:label.archiveManager.table.type',
         accessor: row => row.primaryNodeType?.displayName || row.primaryNodeType?.name,
         sortable: true,
         property: 'jcr:primaryType',
@@ -81,7 +81,7 @@ export const archiveColumns = [
     },
     {
         id: 'originalPath',
-        header: 'archive:archive.label.archiveManager.table.originalPath',
+        header: 'archive:label.archiveManager.table.originalPath',
         accessor: row => row.originalPath?.value,
         sortable: true,
         property: 'jmix:originalPath',
@@ -89,7 +89,7 @@ export const archiveColumns = [
     },
     {
         id: 'archivedAt',
-        header: 'archive:archive.label.archiveManager.table.archivedAt',
+        header: 'archive:label.archiveManager.table.archivedAt',
         accessor: row => row.archivedAt?.value,
         sortable: true,
         property: 'jmix:archivedAt',
@@ -97,7 +97,7 @@ export const archiveColumns = [
     },
     {
         id: 'archivedBy',
-        header: 'archive:archive.label.archiveManager.table.archivedBy',
+        header: 'archive:label.archiveManager.table.archivedBy',
         accessor: row => row.archivedBy?.value,
         sortable: true,
         property: 'jmix:archivedBy',

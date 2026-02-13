@@ -18,7 +18,7 @@ const registerArchiveManagerComponents = () => {
         registry.add(accordionType, accordionKey, renderDefaultContentTrees, {
             targets: ['jcontent:70'],
             icon: <Archive/>,
-            label: 'archive:archive.label.archiveManager.name',
+            label: 'archive:label.archiveManager.name',
             appsTarget: 'archive-manager',
             isEnabled: siteKey => siteKey !== 'systemsite',
             rootPath: '/sites/{site}/Archives',
@@ -32,7 +32,7 @@ const registerArchiveManagerComponents = () => {
             },
             treeConfig: {
                 hideRoot: true,
-                rootLabel: 'archive:archive.label.archiveManager.name',
+                rootLabel: 'archive:label.archiveManager.name',
                 icon: <Archive/>,
                 selectableTypes: ['jnt:archiveContentFolder'],
                 openableTypes: ['jnt:archiveContentFolder']

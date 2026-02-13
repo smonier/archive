@@ -8,7 +8,7 @@ export const registerRoutes = () => {
     registry.add('adminRoute', 'archive', {
         targets: ['contentActions:999'],
         icon: <Archive/>,
-        label: 'archive:archive.label.archiveContent',
+        label: 'archive:label.archiveContent',
         requiredPermission: 'archiveContent',
         path: `${constants.DEFAULT_ROUTE}*`, // Catch everything and let the app handle routing logic
         defaultPath: constants.DEFAULT_ROUTE,

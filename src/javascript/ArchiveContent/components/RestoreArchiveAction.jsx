@@ -154,7 +154,7 @@ export const registerRestoreArchiveAction = () => {
     registry.addOrReplace('action', 'restoreArchive', {
         targets: ['contentActions:998'],
         buttonIcon: <Unarchive/>,
-        buttonLabel: 'archive:archive.label.restoreArchive',
+        buttonLabel: 'archive:label.restoreArchive',
         showOnNodeTypes: ['jmix:archived'],
         requiredPermission: 'unarchiveContent',
         requireModuleInstalledOnSite: 'archive',
