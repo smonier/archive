@@ -141,3 +141,29 @@ export const ADD_READ_ONLY_MIXIN = `
     }
   }
 `;
+
+/**
+ * Mutation to lock a node (make it read-only)
+ */
+export const LOCK_NODE = `
+  mutation LockNode($pathOrId: String!) {
+    jcr(workspace: EDIT) {
+      mutateNode(pathOrId: $pathOrId) {
+        lock
+      }
+    }
+  }
+`;
+
+/**
+ * Mutation to unlock a node
+ */
+export const UNLOCK_NODE = `
+  mutation UnlockNode($pathOrId: String!) {
+    jcr(workspace: EDIT) {
+      mutateNode(pathOrId: $pathOrId) {
+        unlock
+      }
+    }
+  }
+`;

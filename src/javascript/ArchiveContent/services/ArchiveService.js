@@ -17,7 +17,9 @@ import {
     CREATE_FOLDER,
     ADD_MIXIN,
     SET_PROPERTIES,
-    MOVE_NODE
+    MOVE_NODE,
+    LOCK_NODE,
+    UNLOCK_NODE
 } from '../graphql/mutations';
 
 import {
@@ -361,6 +363,11 @@ class ArchiveService {
                 nodeInfo.name
             );
 
+            // Step 12: Lock the node (make it read-only)
+            await executeGraphQL(LOCK_NODE, {
+                pathOrId: movedNode.path
+            });
+
             return {
                 success: true,
                 message: 'Content archived successfully',
@@ -565,7 +572,13 @@ class ArchiveService {
                 console.log('[ArchiveService] Destination exists, using unique name:', finalName);
             }
 
-            // Step 4: Move node to target location
+            // Step 4: Unlock the node before restoring
+            console.log('[ArchiveService] Unlocking node...');
+            await executeGraphQL(UNLOCK_NODE, {
+                pathOrId: nodePath
+            });
+
+            // Step 5: Move node to target location
             console.log('[ArchiveService] Moving node...');
             const moveResult = await executeGraphQL(MOVE_NODE, {
                 pathOrId: nodePath,
@@ -583,7 +596,7 @@ class ArchiveService {
             const movedNodePath = moveResult.jcr.moveNode.node.path;
             console.log('[ArchiveService] Node moved to:', movedNodePath);
 
-            // Step 5: Remove jmix:archived mixin (properties will be automatically removed)
+            // Step 6: Remove jmix:archived mixin (properties will be automatically removed)
             console.log('[ArchiveService] Removing archived mixin...');
             const removeMixinResult = await executeGraphQL(`
                 mutation RemoveMixin($pathOrId: String!) {
