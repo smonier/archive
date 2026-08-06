@@ -1,20 +1,78 @@
 import React from 'react';
+import dayjs from 'dayjs';
+import {useTranslation} from 'react-i18next';
 import {registry} from '@jahia/ui-extender';
 import {addContextMenuTargetToActions} from '@jahia/jcontent';
-import {Archive, Typography} from '@jahia/moonstone';
+import {Archive, TableBodyCell, Typography} from '@jahia/moonstone';
 import {ArchivedNodesQueryHandler} from './ArchivedNodesQueryHandler';
 
-// Sample custom column definition for the archive content type. 
-// You can define your own columns and add them to the tableConfig.columns array 
-// in the registerArchiveManagerComponents function below.
-const contentTypeColumn = {
+const ArchiveHeader = ({column}) => {
+    const {t} = useTranslation('archive');
+    return <Typography weight="bold">{t(column.label)}</Typography>;
+};
+
+const archiveCell = ({body, title, cell, column, row}) => (
+    <TableBodyCell key={row.id + column.id}
+                   {...cell.getCellProps()}
+                   width={column.width}
+                   data-cm-role={'table-content-list-cell-' + column.id}
+    >
+        <Typography title={title}>{body}</Typography>
+    </TableBodyCell>
+);
+
+const typeColumn = {
     id: 'archiveContentType',
+    label: 'label.archiveManager.table.type',
     accessor: 'primaryNodeType.displayName',
     sortable: true,
     property: 'primaryNodeType.displayName',
-    Cell: ({value}) => <Typography>{value}</Typography>,
-    Header: () => <Typography weight="bold">Custom column</Typography>,
-    width: '140px'
+    Cell: props => archiveCell({...props, body: props.value || '-'}),
+    Header: ArchiveHeader,
+    width: '160px'
+};
+
+const originalPathColumn = {
+    id: 'archiveOriginalPath',
+    label: 'label.archiveManager.table.originalPath',
+    accessor: 'originalPath.value',
+    sortable: true,
+    property: 'originalPath',
+    Cell: props => archiveCell({...props, body: props.value || '-', title: props.value}),
+    Header: ArchiveHeader,
+    width: '260px'
+};
+
+const archivedAtColumn = {
+    id: 'archiveArchivedAt',
+    label: 'label.archiveManager.table.archivedAt',
+    accessor: 'archivedAt.value',
+    sortable: true,
+    property: 'archivedAt',
+    Cell: props => {
+        if (!props.value) {
+            return archiveCell({...props, body: '-'});
+        }
+
+        const d = dayjs(props.value);
+        return archiveCell({...props, body: d.format('L LT'), title: d.format('LLLL')});
+    },
+    Header: ArchiveHeader,
+    width: '180px'
+};
+
+const archivedByColumn = {
+    id: 'archiveArchivedBy',
+    label: 'label.archiveManager.table.archivedBy',
+    accessor: row => row.archivedBy?.refNode?.displayName || row.archivedBy?.refNode?.name || row.archivedBy?.value,
+    sortable: true,
+    property: 'archivedBy',
+    Cell: props => {
+        const uuid = props.row?.original?.archivedBy?.value;
+        return archiveCell({...props, body: props.value || '-', title: uuid});
+    },
+    Header: ArchiveHeader,
+    width: '160px'
 };
 
 const registerArchiveManagerComponents = () => {
@@ -53,8 +111,17 @@ const registerArchiveManagerComponents = () => {
                 contextualMenu: menuName,
                 // This is for hiding badge status in the content header
                 header: {showStatus: false},
-                // Specify custom columns either by id (see src/javascript/ContentEditor/ContentTable/columns.js) or by providing a column definition object
-                columns: ['publicationStatus', 'selection', 'name', contentTypeColumn, 'lastModified', 'visibleActions'],
+                // Specify custom columns either by id (see jcontent columns.js: publicationStatus, selection, name, nameBigIcon, status, type, createdBy, lastModified, visibleActions, fileSize, usages) or by providing a column definition object
+                columns: [
+                    'publicationStatus',
+                    'selection',
+                    'name',
+                    typeColumn,
+                    originalPathColumn,
+                    archivedAtColumn,
+                    archivedByColumn,
+                    'visibleActions'
+                ],
                 showHeader: true,
                 typeFilter: ['jmix:archived'],
                 viewSelector: undefined

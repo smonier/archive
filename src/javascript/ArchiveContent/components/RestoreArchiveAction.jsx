@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {registry} from '@jahia/ui-extender';
-import {Language, Unarchive} from '@jahia/moonstone';
+import {Unarchive} from '@jahia/moonstone';
 import {useApolloClient} from 'react-apollo';
 import ArchiveService from '../services/ArchiveService';
 import {getErrorMessage} from '../utils/archiveUtils';
@@ -29,7 +29,7 @@ const showNotification = (message, variant = 'info') => {
  */
 export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
     const client = useApolloClient();
-    const {checksResult} = useNodeChecks({path, Language}, {
+    const {checksResult} = useNodeChecks({path}, {
         showOnNodeTypes: ['jmix:archived'],
         requiredPermission: ['unarchiveContent'],
         requireModuleInstalledOnSite: ['archive']
@@ -134,13 +134,11 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
         });
     };
 
-    // If render function provided, use it (for menu rendering)
-    if (Render && checksResult) {
-        return <Render {...otherProps} onClick={handleClick}/>;
+    if (!Render || !checksResult?.displayAction) {
+        return null;
     }
 
-    // This shouldn't happen with proper registration, but provide a fallback
-    return null;
+    return <Render {...otherProps} onClick={handleClick}/>;
 };
 
 RestoreArchiveAction.propTypes = {

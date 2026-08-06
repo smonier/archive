@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {registry} from '@jahia/ui-extender';
-import {Archive, Language} from '@jahia/moonstone';
+import {Archive} from '@jahia/moonstone';
 import {useApolloClient} from 'react-apollo';
 import ArchiveService from '../services/ArchiveService';
 import {getErrorMessage} from '../utils/archiveUtils';
@@ -32,13 +32,12 @@ const showNotification = (message, variant = 'info') => {
  */
 export const ArchiveContentAction = ({path, render: Render, ...otherProps}) => {
     const client = useApolloClient();
-    const {checksResult} = useNodeChecks({path, Language}, {
+    const {checksResult} = useNodeChecks({path}, {
         showOnNodeTypes: ['jnt:page', 'jmix:editorialContent', 'jmix:archivable'],
         hideOnNodeTypes: ['jnt:archiveContentFolder', 'jmix:archived'],
         hideForPaths: ['^/sites/((?!/).)+/Archives/?$'],
         requiredPermission: ['archiveContent', 'unarchiveContent'],
         requireModuleInstalledOnSite: ['archive']
-
     });
 
     // Get triggerRefetchAll from jContent if available

@@ -108,6 +108,10 @@ export const ArchivedNodesQuery = gql`
                         }
                         archivedBy: property(name: "archivedBy") {
                             value
+                            refNode {
+                                name
+                                displayName(language: $displayLanguage)
+                            }
                         }
                     }
                 }
