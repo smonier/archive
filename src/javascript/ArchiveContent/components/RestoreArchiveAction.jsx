@@ -134,13 +134,11 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
         });
     };
 
-    // If render function provided, use it (for menu rendering)
-    if (Render && checksResult) {
-        return <Render {...otherProps} onClick={handleClick}/>;
+    if (!Render || !checksResult?.displayAction) {
+        return null;
     }
 
-    // This shouldn't happen with proper registration, but provide a fallback
-    return null;
+    return <Render {...otherProps} onClick={handleClick}/>;
 };
 
 RestoreArchiveAction.propTypes = {
