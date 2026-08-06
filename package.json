@@ -1,6 +1,6 @@
 {
   "name": "archive",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "test": "env-cmd --no-override jest",
     "testcli": "jest",
