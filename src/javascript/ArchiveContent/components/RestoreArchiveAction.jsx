@@ -134,7 +134,7 @@ export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
         });
     };
 
-    if (!Render || !checksResult?.displayAction) {
+    if (!Render || !checksResult) {
         return null;
     }
 
