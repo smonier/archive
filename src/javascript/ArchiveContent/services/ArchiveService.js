@@ -567,9 +567,7 @@ class ArchiveService {
             let finalName = node.name;
 
             if (destExists) {
-                // Generate unique name
-                finalName = await generateUniqueName(targetParentPath, node.name);
-                console.log('[ArchiveService] Destination exists, using unique name:', finalName);
+                finalName = generateUniqueName(node.name);
             }
 
             // Step 4: Unlock the node before restoring

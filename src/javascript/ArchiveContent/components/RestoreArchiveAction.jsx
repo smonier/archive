@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {registry} from '@jahia/ui-extender';
-import {Language, Unarchive} from '@jahia/moonstone';
+import {Unarchive} from '@jahia/moonstone';
 import {useApolloClient} from 'react-apollo';
 import ArchiveService from '../services/ArchiveService';
 import {getErrorMessage} from '../utils/archiveUtils';
@@ -29,7 +29,7 @@ const showNotification = (message, variant = 'info') => {
  */
 export const RestoreArchiveAction = ({path, render: Render, ...otherProps}) => {
     const client = useApolloClient();
-    const {checksResult} = useNodeChecks({path, Language}, {
+    const {checksResult} = useNodeChecks({path}, {
         showOnNodeTypes: ['jmix:archived'],
         requiredPermission: ['unarchiveContent'],
         requireModuleInstalledOnSite: ['archive']

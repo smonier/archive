@@ -35,3 +35,6 @@ buildNumber.properties
 /.project
 /.settings/
 .DS_Store
+
+# Introspection dump — regenerate against a running Jahia instead of tracking a 1.4MB file
+schema.graphql
