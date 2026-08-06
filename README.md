@@ -11,6 +11,7 @@ This extension provides a safe, controlled way to archive and restore unpublishe
 - **Content Actions Integration**: Archive action accessible from the Content Actions menu (target: `contentActions:999`)
 - **Restore Capability**: Restore archived content to its original location via Content Actions menu
 - **Archive Manager**: Dedicated accordion in jContent for browsing and managing archived content
+- **Archive-Specific Columns**: Type, Original Path, Archived Date, and Archived By columns in the Archive Manager table (jContent 3.7 `tableConfig.columns`)
 - **Date-Organized Structure**: Automatic organization by year/month (YYYY/MM)
 - **Publication Safety**: Prevents archiving of published content with clear warning dialogs
 - **Metadata Preservation**: Stores original path, parent ID, archive timestamp, and archiving user
@@ -38,11 +39,11 @@ src/javascript/
 │   │   └── archiveUtils.js             # Helper functions
 │   └── index.js                        # Entry point
 └── ArchiveManager/
-    ├── ArchiveManager.jsx              # Archive Manager accordion
-    ├── ArchiveContentLayout.jsx        # Custom content layout
-    ├── ArchiveManager.columns.jsx      # Table column definitions
-    ├── ArchivedNodesQueryHandler.js    # Query handler for archived nodes
-    └── registerArchiveManager.jsx      # Registration logic
+    ├── ArchiveManager.jsx                        # Archive Manager accordion
+    ├── ArchiveContentLayout.jsx                  # Custom content layout
+    ├── ArchivedNodesQueryHandler.js              # Query handler for archived nodes
+    ├── ArchivedNodesQueryHandler.gql-queries.js  # GraphQL query for archived nodes
+    └── registerArchiveManager.jsx                # Accordion + custom column registration
 
 src/main/resources/
 ├── META-INF/
@@ -191,7 +192,14 @@ All errors are logged with `[ArchiveContent]` prefix for debugging.
 1. Open jContent
 2. Navigate to the **Archive Manager** accordion in the left sidebar
 3. Browse archived content organized by year/month
-4. Select any archived content to:
+4. Each archived item is listed with archive-specific columns:
+   - **Name** — the archived node's title
+   - **Type** — the primary node type (e.g. Page, News, Image)
+   - **Original Location** — the JCR path the item lived at before archiving
+   - **Archived Date** — timestamp of the archive operation
+   - **Archived By** — user who archived (resolved to a display name; UUID kept as a tooltip)
+5. Click any column header to sort by that field
+6. Select any archived content to:
    - View its properties and metadata
    - Restore it to its original location
    - Preview its content
@@ -289,7 +297,11 @@ Production builds automatically suppress debug logs.
 
 - Node.js 14+
 - Maven 3.6+
-- Jahia DX 8.2+
+- Jahia DX 8.2+ (jContent 3.7+ required for Archive Manager custom columns)
+
+### Compatibility Note
+
+`@jahia/data-helper` is pinned to `~1.0.12` (the legacy `apollo-client@2.x` line) so that the module federation shared scope stays compatible with the app-shell shipped in Jahia 8.2.3.x (`@apollo/client@3.5.10`). When targeting a Jahia whose app-shell provides `@apollo/client@3.7+`, this pin can be lifted.
 
 ### Build
 
