@@ -94,7 +94,7 @@ const registerArchiveManagerComponents = () => {
             menuItemProps: {isShowIcons: true}
         });
         // 2. Define the actions that will be displayed in the custom context menu
-        addContextMenuTargetToActions(menuTarget, ['edit', 'export']);
+        addContextMenuTargetToActions(menuTarget, ['edit', 'export', 'restoreArchive']);
 
         registry.add(accordionType, accordionKey, renderDefaultContentTrees, {
             targets: ['jcontent:70'],
